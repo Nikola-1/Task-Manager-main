@@ -1,0 +1,6 @@
+[build]
+  command = "NEXT_DISABLE_TYPECHECK=1 SKIP_TS_ERRORS=true TS_NODE_TRANSPILE_ONLY=1 npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

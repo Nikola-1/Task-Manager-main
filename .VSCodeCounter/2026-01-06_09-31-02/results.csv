@@ -1,0 +1,57 @@
+"filename", "language", "TypeScript", "JSON with Comments", "JavaScript", "JSON", "Markdown", "TypeScript JSX", "PostCSS", "XML", "JavaScript JSX", "comment", "blank", "total"
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\README.md", "Markdown", 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 14, 46
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\eslint.config.mjs", "JavaScript", 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 17
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\next.config.ts", "TypeScript", 10, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 16
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\package-lock.json", "JSON", 0, 0, 0, 11975, 0, 0, 0, 0, 0, 0, 1, 11976
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\package.json", "JSON", 0, 0, 0, 46, 0, 0, 0, 0, 0, 0, 1, 47
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\postcss.config.mjs", "JavaScript", 0, 0, 6, 0, 0, 0, 0, 0, 0, 1, 2, 9
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\public\file.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\public\globe.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\public\next.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\public\vercel.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\public\window.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\ClientLayout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 22, 0, 0, 0, 1, 7, 30
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\AccountComponent\AccountComponent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 4, 24
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\CalendarComponent\CalendarComponent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 88, 0, 0, 0, 11, 43, 142
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\CalendarComponent\style.css", "PostCSS", 0, 0, 0, 0, 0, 0, 32, 0, 0, 1, 4, 37
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\CalendarModal\CalendarModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 9, 47
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\HabitComponent\HabitCalendar\HabitCalendar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\HabitComponent\HabitList\HabitList.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 117, 0, 0, 0, 1, 22, 140
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\HabitComponent\page.css", "PostCSS", 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 1, 12
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\Login\Login.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\Login\LoginComponent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 92, 0, 0, 0, 0, 22, 114
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\Login\style.css", "PostCSS", 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 1, 6
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\OptionsMenu\OptionsMenu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 45, 0, 0, 0, 1, 14, 60
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\SmileModalComponent\SmileModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 10, 55
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TagModal\TagModalComponent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 169, 0, 0, 0, 0, 27, 196
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\ListModal\ListModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 123, 0, 0, 0, 0, 19, 142
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskComponent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 56, 0, 0, 0, 3, 18, 77
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskDisplay\TaskCategoryImage.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 11, 37
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskDisplay\TaskDisplay.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 290, 0, 0, 0, 7, 98, 395
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskDisplay\style.css", "PostCSS", 0, 0, 0, 0, 0, 0, 40, 0, 0, 4, 8, 52
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskMenu\TaskMenu.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskMenu\TaskMenu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 272, 0, 0, 0, 6, 51, 329
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\TaskOptions\TaskOptionsComponent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6, 13
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\Task\Task.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 166, 0, 0, 0, 2, 41, 209
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\Types\TaskType.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 11
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\Types\UserType.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\hooks\useFilterTasks.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 130, 0, 0, 0, 2, 27, 159
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\TaskComponent\hooks\useOptionsMenu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 10, 23
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\fixed\nav.css", "PostCSS", 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\components\fixed\nav.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 35, 0, 0, 0, 4, 5, 44
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\connection\supabaseclient.ts", "TypeScript", 4, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 8
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\context\AuthContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 8, 35
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\globals.css", "PostCSS", 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 4, 35
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 17, 58
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 20
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Account\page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 5, 12
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Calendar\page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 5, 23
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Habits\page.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 5, 12
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Login\page.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 5, 12
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Pomodoro\page.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 49, 1, 23, 73
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Pomodoro\pomodoro.css", "PostCSS", 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 1, 13
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\src\app\pages\Task\page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 4, 11
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\tailwind.config.ts", "TypeScript", 19, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 22
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\tsconfig.json", "JSON with Comments", 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 1, 43
+"c:\Users\Nikola\Desktop\Djura\React\Task-Manager\vercel.json", "JSON", 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1, 4
+"Total", "-", 33, 42, 18, 12024, 32, 1885, 134, 5, 63, 49, 582, 14867

@@ -1,0 +1,5 @@
+.placeHolderAnimation:hover::placeholder {
+    transform: translateY(-100%) !important;
+    transition-duration: 5ms;
+    transition: all;
+}

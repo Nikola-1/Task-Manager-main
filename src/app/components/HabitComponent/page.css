@@ -1,0 +1,12 @@
+.circle{
+    background-color: white;
+    border-radius: 50%;
+    
+    padding: 12px;
+    height: 10px;
+   margin: 0.2rem;
+}
+.circle:hover{
+    background-color: #7782a4;
+    cursor: pointer;
+}

@@ -1,0 +1,468 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import "./StarField.css";
+import {userImage} from "@/assets/img/user.png"
+import { Micro_5 } from "next/font/google";
+
+const micro5 = Micro_5({
+  weight: "400",
+  subsets: ["latin"],
+});
+type Star = {
+  x: number;
+  y: number;
+  speed: number;
+  length: number;
+  size: number;
+  opacity: number;
+};
+type FloatingImage = {
+  id: number;
+  src: string;
+  top: number;
+  size: number;
+  duration: number;
+  rotate: number;
+
+  exitX: number;
+  exitY: number;
+};
+
+interface StarFieldProps {
+  starCount?: number;
+  minSpeed?: number;
+  maxSpeed?: number;
+  titleLocation:React.RefObject<HTMLHeadingElement | null>;
+}
+
+const spaceImages = [
+  `/img/3d-paper-bag.png`,
+  "/img/3d-music.png",
+  "/img/3d-headphone.png",
+  "/img/3d-briefcase.png",
+  "/img/hot-chocolate.png",
+];
+
+export default function StarField({
+  starCount = 350,
+  minSpeed = 8,
+  maxSpeed = 28,
+  titleLocation
+}: StarFieldProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [showTitle, setShowTitle] = useState(false);
+  const [showImages, setShowImages] = useState(false);
+  const [floatingImages, setFloatingImages] = useState<FloatingImage[]>([]);
+
+  const imageIdRef = useRef(0);
+const [moveTitle, setMoveTitle] = useState(false);
+const offset = useRef({
+  x:0,
+  y:0,
+})
+const titleRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  if (!showTitle) return;
+
+  const timer = window.setTimeout(() => {
+    const source = titleRef.current;
+    const target = titleLocation.current;
+
+    if (!source || !target) return;
+
+    const sourceRect = source.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    console.log("Target",targetRect.top,targetRect.left)
+    console.log("Source:",sourceRect.top,sourceRect.left)
+    offset.current={
+      x:targetRect.left,
+      y:targetRect.top
+    }
+
+   setMoveTitle(true);
+   console.log(moveTitle);
+   console.log(offset);
+  }, 1800);
+
+  return () => window.clearTimeout(timer);
+}, [showTitle, titleLocation]);
+ useEffect(() => {
+    console.log(moveTitle);
+    console.log(offset);
+  }, [moveTitle]);
+  useEffect(() => {
+    const showTimer = window.setTimeout(() => {
+      setShowImages(true);
+    }, 1000);
+
+    return () => window.clearTimeout(showTimer);
+  }, []);
+
+  useEffect(() => {
+  const titleTimer = window.setTimeout(() => {
+    setShowTitle(true);
+  }, 9500);
+
+  return () => window.clearTimeout(titleTimer);
+}, []);
+
+  useEffect(() => {
+    if (!showImages) return;
+
+    const createFloatingImage = () => {
+      const randomImage =
+        spaceImages[Math.floor(Math.random() * spaceImages.length)];
+
+     const newImage: FloatingImage = {
+  id: imageIdRef.current++,
+  src: randomImage,
+
+  top: 10 + Math.random() * 70,
+  size: 80 + Math.random() * 100,
+
+  // sporije i prijatnije
+  duration: 6 + Math.random() * 2,
+
+  rotate: -10 + Math.random() * 20,
+
+  exitX: 0,
+  exitY: 0,
+};
+
+      setFloatingImages((previousImages) => [
+        ...previousImages,
+        newImage,
+      ]);
+
+      window.setTimeout(() => {
+        setFloatingImages((previousImages) =>
+          previousImages.filter((image) => image.id !== newImage.id)
+        );
+      }, newImage.duration * 1000 + 500);
+    };
+
+    createFloatingImage();
+
+    const imageInterval = window.setInterval(() => {
+      createFloatingImage();
+    }, 1100);
+
+    const stopTimer = window.setTimeout(() => {
+      window.clearInterval(imageInterval);
+    }, 5000);
+
+    return () => {
+      window.clearInterval(imageInterval);
+      window.clearTimeout(stopTimer);
+    };
+  }, [showImages]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+
+    if (!context) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let animationFrameId = 0;
+    let stars: Star[] = [];
+
+    const createStar = (startAnywhere = true): Star => {
+      const speed =
+        Math.random() * (maxSpeed - minSpeed) + minSpeed;
+
+      return {
+        x: startAnywhere
+          ? Math.random() * width
+          : -Math.random() * 300,
+        y: Math.random() * height,
+        speed,
+        length: speed * (2 + Math.random() * 4),
+        size: 0.5 + Math.random() * 1.8,
+        opacity: 0.25 + Math.random() * 0.75,
+      };
+    };
+
+    const createStars = () => {
+      stars = Array.from(
+        { length: starCount },
+        () => createStar(true)
+      );
+    };
+
+    const resizeCanvas = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+
+      const pixelRatio = window.devicePixelRatio || 1;
+
+      canvas.width = width * pixelRatio;
+      canvas.height = height * pixelRatio;
+
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
+      context.setTransform(
+        pixelRatio,
+        0,
+        0,
+        pixelRatio,
+        0,
+        0
+      );
+
+      createStars();
+    };
+
+    const resetStar = (star: Star) => {
+      const newStar = createStar(false);
+
+      star.x = newStar.x;
+      star.y = newStar.y;
+      star.speed = newStar.speed;
+      star.length = newStar.length;
+      star.size = newStar.size;
+      star.opacity = newStar.opacity;
+    };
+
+    const animate = () => {
+   context.fillStyle = "rgba(147, 197, 253, 0.32)"; 
+      context.fillRect(0, 0, width, height);
+
+      stars.forEach((star) => {
+        star.x += star.speed;
+
+        if (star.x - star.length > width) {
+          resetStar(star);
+        }
+
+        const gradient = context.createLinearGradient(
+          star.x - star.length,
+          star.y,
+          star.x,
+          star.y
+        );
+
+        gradient.addColorStop(
+          0,
+          "rgba(255,255,255,0)"
+        );
+
+        gradient.addColorStop(
+          1,
+          `rgba(255,255,255,${star.opacity})`
+        );
+
+        context.beginPath();
+        context.moveTo(star.x - star.length, star.y);
+        context.lineTo(star.x, star.y);
+
+        context.strokeStyle = gradient;
+        context.lineWidth = star.size;
+        context.lineCap = "round";
+        context.stroke();
+
+        context.beginPath();
+        context.arc(
+          star.x,
+          star.y,
+          star.size,
+          0,
+          Math.PI * 2
+        );
+
+        context.fillStyle = `rgba(255,255,255,${star.opacity})`;
+        context.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    resizeCanvas();
+    animate();
+
+    window.addEventListener("resize", resizeCanvas);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [starCount, minSpeed, maxSpeed]);
+
+  return (
+  <div className="star-field">
+    <canvas
+      ref={canvasRef}
+      className="star-canvas"
+    />
+
+    <div className="floating-images-layer">
+      <AnimatePresence>
+        {floatingImages.map((item) => (
+          <motion.div
+            key={item.id}
+            className="floating-space-image"
+            style={{
+              top: `${item.top}%`,
+              width: item.size,
+              height: item.size,
+            }}
+            initial={{
+  x: -item.size * 1.5,
+  y: 0,
+  opacity: 0,
+  scale: 0.85,
+  rotate: item.rotate,
+  filter: "blur(8px)",
+}}
+            animate={{
+  x: `calc(100vw + ${item.size * 1.5}px)`,
+
+  y: [
+    0,
+    -8,
+    5,
+    0,
+  ],
+
+  opacity: [
+    0,
+    1,
+    1,
+    1,
+    0,
+  ],
+
+  scale: [
+    0.85,
+    1,
+    1.03,
+    1,
+    0.9,
+  ],
+
+    rotate: [
+    item.rotate,
+    item.rotate + 2,
+    item.rotate - 2,
+    item.rotate,
+  ],
+
+  filter: [
+    "blur(8px)",
+    "blur(0px)",
+    "blur(0px)",
+    "blur(0px)",
+    "blur(8px)",
+  ],
+}}
+            transition={{
+              duration: item.duration,
+
+              times: [
+                0,
+                0.25,
+                0.42,
+                0.62,
+                0.70,
+                1,
+              ],
+
+              ease: [
+                "easeOut",
+                "easeOut",
+                "linear",
+                "easeIn",
+                "easeIn",
+              ],
+            }}
+          >
+            <Image
+              src={item.src}
+              alt=""
+              fill
+              sizes={`${item.size}px`}
+              className="space-image"
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+
+    <AnimatePresence>
+  {showTitle && (
+    <motion.div
+      ref={titleRef}
+      className="help-task-title"
+      initial={{
+        opacity: 0,
+        scale: 0.4,
+        filter: "blur(20px)",
+      }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+
+        x: offset.current.x,
+        y: offset.current.y,
+
+        filter: "blur(0px)",
+      }}
+      transition={{
+        opacity: {
+          duration: 1.2,
+        },
+
+        scale: {
+          duration: 1.2,
+          ease: [0.16, 1, 0.3, 1],
+        },
+
+        x: {
+          duration: 1.2,
+          ease: [0.16, 1, 0.3, 1],
+        },
+
+        y: {
+          duration: 1.2,
+          ease: [0.16, 1, 0.3, 1],
+        },
+
+        filter: {
+          duration: 1.2,
+        },
+      }}
+    >
+      <motion.h1
+        className={micro5.className}
+        initial={{
+          y: 30,
+          letterSpacing: "40px",
+        }}
+        animate={{
+          y: 0,
+          letterSpacing: "8px",
+        }}
+        transition={{
+          duration: 1.2,
+          ease: "easeOut",
+        }}
+      >
+        HelpTask
+      </motion.h1>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+    <div className="space-overlay" />
+  </div>
+);
+}

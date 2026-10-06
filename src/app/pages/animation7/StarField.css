@@ -1,0 +1,25 @@
+.animation{
+  transform: translate(50%,0%,50%,0);
+}
+.star-line {
+  position: absolute;
+
+  width: 120px;
+  height: 2px;
+
+  border-radius: 999px;
+
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.9),
+    white
+  );
+
+  box-shadow:
+    0 0 4px rgba(255, 255, 255, 0.8),
+    0 0 10px rgba(147, 197, 253, 0.6);
+
+  filter: blur(0.3px);
+}
