@@ -7,23 +7,21 @@ import { faCalendar, faCheck, faCheckSquare, faClose, faColumns, faDisplay, faEa
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Placeholder from '@tiptap/extension-placeholder'
-import React, { ChangeEvent, useEffect, useState, useReducer } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { useEditor,EditorContent } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
-import Document from '@tiptap/extension-document'
-import OrderedList from '@tiptap/extension-ordered-list'
-import ListItem from "@tiptap/extension-list-item";
 import TaskCategoryImage from "@/features/tasks/components/TaskDisplay/TaskCategoryImage";
 import  {TextStyle,FontFamily}  from '@tiptap/extension-text-style'
 import Task from "@/features/tasks/components/Task/Task";
+import TaskEditor from "@/features/tasks/components/TaskDisplay/TaskEditor";
 
 import { TaskType } from "@/types/TaskType";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import useOptionsMenu from "@/components/ui/hooks/useOptionsMenu";
 import { OptionsMenu } from "@/components/ui/OptionsMenu/OptionsMenu";
 import { useScope } from "@/features/groups/context/ScopeContext";
-import { AddTask, deleteDeleted, saveContent } from '@/features/tasks/data/tasks.repository';
+import { AddTask, deleteDeleted } from '@/features/tasks/data/tasks.repository';
 import { setUserAfterDisplay } from '@/features/auth/data/auth.repository';
 import { group } from "console";
 import { UserType } from "@/types/UserType";
@@ -74,8 +72,9 @@ export default function TaskDisplay({
      
    
     const [activeTask,setActiveTask] = useState<string | undefined>("");
-    const [DDL,setDDL] = useState<boolean>(false);
-    const FontArray:string[] = ['Montserrat','Roboto','Bebas Neue','Fascinate','Google Sans Code'];
+    const [deletingTasks, setDeletingTasks] = useState(false);
+    const [deleteError, setDeleteError] = useState("");
+    const deletingTasksRef = useRef(false);
     const [X,setX] = useState<number | undefined>();
     const [Y,setY] = useState<number | undefined>();
       const [inputValue,setInputValue] = useState("Add task");
@@ -85,45 +84,33 @@ export default function TaskDisplay({
     extensions: [
       StarterKit,
       TextStyle,
-      OrderedList,
-      ListItem,
-      Document,
       Placeholder.configure({
-        placeholder: "Write something awesome..."
+        placeholder: "Add notes and details for this task..."
       }),
       FontFamily
     ],
-    content: selectedTaskProp != null ? `${selectedTaskProp.content}` : `${Placeholder}`,
+    content: "",
+    shouldRerenderOnTransaction: false,
+    editorProps: { attributes: { "aria-label": "Task notes", role: "textbox", "aria-multiline": "true" } },
       immediatelyRender: false
     
-  })
-   
-useEffect(() => {
-  if (!editor || !selectedTaskProp) return;
-  
-  const currentHTML = editor.getHTML();
-  if (currentHTML !== selectedTaskProp.content) {
-    editor.commands.setContent(selectedTaskProp.content || "");
-  }
-}, [selectedTaskProp?.id]);
-
- 
-  
-  const saveContentFunc = async(id:number)=>{
-      const html = editor?.getHTML() || "";
-      const data = await saveContent(id,editor?.getHTML() || "");
-     
-    console.log("Uspeh")
-  
-    refreshTasks();
-     setSelectedTaskProp(data);
-  }
-   
+  }, [selectedTaskProp?.id])
    
     const deleteDeletedFunc = async() =>{
-      setSelectedTaskProp(null);
-       await deleteDeleted(tasksArray);
-       refreshTasks();
+      if (deletingTasksRef.current || !tasksArray.length) return;
+      deletingTasksRef.current = true;
+      setDeletingTasks(true);
+      setDeleteError("");
+      try {
+        await deleteDeleted(tasksArray);
+        setSelectedTaskProp(null);
+        await refreshTasks();
+      } catch {
+        setDeleteError("Could not delete tasks. Please try again.");
+      } finally {
+        deletingTasksRef.current = false;
+        setDeletingTasks(false);
+      }
     }
     
    
@@ -179,20 +166,6 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
     const MotionFriendCard = motion(Task);
     
         
-         const [, forceUpdate] = useReducer(x=>x+1,0);
-          useEffect(()=>{
-            if(!editor) return;
-
-            const rerender = () => forceUpdate();
-            editor.on('selectionUpdate',rerender);
-            editor.on('transaction',rerender);
-
-            return ()=>{
-              editor.off('selectionUpdate',rerender);
-              editor.off('transaction',rerender);
-            }
-          }, [editor])
-          
             useEffect(() => {
            
              refreshTasks();
@@ -205,7 +178,7 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
          
     return(
         
-        <div className="w-full flex h-full   ">
+        <div className="w-full min-w-0 flex flex-col gap-4 h-full md:flex-row md:gap-0">
             
             <div  className={`task-list h-full relative w-full md:w-2/4 md:border-r-2  flex flex-col transition-all duration-700 ease-in-out ${SideMenuVisible ? "right-1" : ""}`}>
             <div className="flex justify-between h-fit items-center p-3">
@@ -240,7 +213,13 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
                         
                     </div>
                     
-                    {filter == "Deleted" ?  <div className="flex justify-center  mx-auto m-3 w-9/12 h-fit bg-blue-400 font-bold text-white rounded-md cursor-pointer" onClick={deleteDeletedFunc}>Delete</div> : <></>}
+                    {filter === "Deleted" && <div className="mx-auto my-3 w-9/12">
+                      <button type="button" disabled={deletingTasks || !tasksArray.length} onClick={() => void deleteDeletedFunc()}
+                        className="w-full rounded-md bg-blue-400 py-2 font-bold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
+                        {deletingTasks ? "Deleting..." : "Delete"}
+                      </button>
+                      {deleteError && <p role="alert" className="mt-2 text-sm text-red-700">{deleteError}</p>}
+                    </div>}
                     
 
                  <div className={user?.display == true  ? "grid grid-cols-2 overflow-y-scroll" : " overflow-y-scroll h-96"}>
@@ -274,47 +253,10 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
                  </div>
             </div> 
                 
-         {selectedTaskProp != null ? <div className="task-description w-2/4 hidden h-dvh md:flex flex-col">
-              
-              
-               <div style={{ margin: '0.4rem' }}>
-        <button className="text-white border-2 bg-blue-300 p-1 rounded-md text-sm m-1 border-blue-300 hover:bg-white hover:text-blue-300" onClick={() => editor.chain().focus().toggleBold().run()}>
-          Bold
-        </button>
-        <button className="text-white border-2 bg-blue-300 p-1 rounded-md text-sm m-1 border-blue-300 hover:bg-white hover:text-blue-300" onClick={() => editor.chain().focus().toggleItalic().run()}>
-          Italic
-        </button>
-        <button className="text-white border-2 bg-blue-300 p-1 rounded-md text-sm m-1 border-blue-300 hover:bg-white hover:text-blue-300" onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-          Ordered List
-        </button>
-        <button className="text-white border-2 bg-blue-300 p-1 rounded-md text-sm m-1 border-blue-300 hover:bg-white hover:text-blue-300" onClick={() => editor.chain().focus().unsetAllMarks().run()}>
-          Clear formatting
-        </button>
-        
-      </div>
-       <div className="flex justify-start mx-1 " style={{ marginBottom: '1rem' }}>
-        <div onClick={()=>setDDL(!DDL)} className="selectFontDDL text-white w-32 border-2 relative  bg-blue-300 p-1 rounded-md text-xs m-1 border-blue-300 hover:bg-white hover:text-blue-300 " >
-        
-        <p>{editor.getAttributes('textStyle').fontFamily != null ? editor.getAttributes('textStyle').fontFamily : "Select font"}</p>
+         {selectedTaskProp != null ? <div className="task-description flex h-dvh min-h-0 min-w-0 w-full flex-col md:w-2/4">
+           <TaskEditor key={selectedTaskProp.id} editor={editor} task={selectedTaskProp} refreshTasks={refreshTasks} />
+         </div> : <div className="hidden md:flex md:w-2/4 items-center justify-center p-8 text-sm text-gray-400">Select a task to edit its notes.</div>}
 
-        <div className={DDL == true ? "h-fit transition-all w-full left-0 border-2  border-blue-300 rounded-md absolute z-10 bg-blue-300 text-white " : "h-0 border-blue-300 transition-all w-full rounded-md"  }>
-
-        {FontArray.map((item)=>  <div key={item} className={DDL == true ? "visible p-3 hover:bg-white transition-all rounded-md hover:text-blue-300" :" invisible transition-all "}  onClick={(e)=>editor.chain().focus().setFontFamily(item).run()}>{item}</div>)}
-          </div>
-           
-        </div>
-          <div><p  className="text-white border-2 bg-blue-300 p-1 rounded-md text-xs m-1 border-blue-300 hover:bg-white hover:text-blue-300">  Comic Sans MS</p></div>
-            <div><p   className="text-white border-2 bg-blue-300 p-1 rounded-md text-xs m-1 border-blue-300 hover:bg-white hover:text-blue-300">H2</p></div>
-             <div><p  className="text-white border-2 bg-blue-300 p-1 rounded-md text-xs m-1 border-blue-300 hover:bg-white hover:text-blue-300">H3</p></div>
-              <div><p className="text-white border-2 bg-blue-300 p-1 rounded-md text-xs m-1 border-blue-300  hover:bg-white hover:text-blue-300 ">H4</p></div>
-             
-      </div>
-      
-                <EditorContent key={selectedTaskProp?.id} className="outline-none border-none ProseMirror my-2 p-1 overflow-y-scroll max-h-dvh" editor={editor} />
-                 <button className="text-white border-2  bg-blue-300 p-1 rounded-md text-sm m-1 w-fit border-blue-300 hover:bg-white hover:text-blue-300" onClick={()=>saveContentFunc(selectedTaskProp.id)}> Save</button>
-            </div> : ""}
-            
-            
            <OptionsMenu options={options} open={open} closeMenu={()=>setOpen(!open)} x={X} y={Y} />
         </div>
         

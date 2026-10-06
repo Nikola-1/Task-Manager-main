@@ -23,6 +23,7 @@ import { group } from "console"
 import { Micro_5 } from "next/font/google"
 import { GetTags } from '@/features/tags/data/tags.repository';
 import Link from "next/link"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 interface TaskMenuProps {
     setToggleModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -54,6 +55,7 @@ interface TaskMenuProps {
 export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTaskFilter,setFilter,categoryId,setCategoryId,setFilterImage,setSelectedTask,SideMenuVisible,setEditListItem,setMode,Mode,setNameCategory,ToggleModalTag,setToggleModalTag,refreshFlagTags,setModeTag,ModeTag,setSelectedTag,setTagId,tagId }: TaskMenuProps){
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [categories,setCategories] = useState<any[]>([]);
+    const reducedMotion = useReducedMotion();
     const [visibleTags,setVisibleTags] = useState(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [tags,setTags] = useState<any[] | null>([]);
@@ -71,12 +73,24 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
     Delete:{
         label:"Delete",
         icon:faTrash,
-        action:async ()=> {await supabase.from("Categories").delete().eq("id",id); getCategories(); setOpen(false);}, 
+        action:async () => {
+            const { error } = await supabase.from("Categories").delete().eq("id", id);
+            if (error) { console.error("Could not delete category:", error.message); return; }
+            setCategories(current => current.filter(category => category.id !== id));
+            if (categoryId === id) {
+                setCategoryId(null);
+                setTaskFilter("Today");
+                setFilterImage(null);
+                setSelectedTask(null);
+                setMenuButtonToggle(-2);
+            }
+            setOpen(false);
+        },
     },
     Edit:{
         label:"Edit",
         icon:faEdit,
-        action:async () => {setToggleModal(true); closeMenu();
+        action:async () => {closeMenu();
             
             const {data,error} = await supabase.from("Categories").select('*,Stickers(*)').eq("id",id).single();
             
@@ -87,6 +101,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                  setMode("Update");
                 setNameCategory(data.name);
                 setEditListItem(data);
+                setToggleModal(true);
                 console.log(data);
             }
 
@@ -125,23 +140,6 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
   });
   const closeMenu = ()=> setOpen(false);
     const closeMenuTag = ()=> setOpenTag(false);
-    const getCategories = async()=>{
-        let data,error;
-        if(groupId == null){
-
-            ({data,error} = await supabase.from("Categories").select(`*,Stickers(sticker_path)`).eq('user_id',user?.id).is("group_id",null).order("id",{ascending:true}));
-        }
-        else{
-            ({data,error} = await supabase.from("Categories").select(`*,Stickers(sticker_path)`).eq('user_id',user?.id).eq("group_id",groupId).order("id",{ascending:true}));
-        }
-        if(error){
-            console.log(error);
-        }
-
-        console.log(data);
-        setCategories(data ?? []);
-       
-    }
     
     
      
@@ -263,14 +261,27 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
             </div>
             <div className="Task-list    ">
                 <div className="flex items-center   justify-between ">
-                    <div className="flex ">
-                <h5 className="text-blue-900 font-bold m-3 p-0.5">List</h5>
-                <p className="bg-blue-300 w-fit m-3 p-0.5 text-blue-900 rounded-md">Used: 3/9</p>
+                <div className="flex min-w-0 items-center gap-2 px-3 py-3">
+                <h5 className="font-bold text-blue-900">List</h5>
+                <span aria-label={`${categories.length} categories`} aria-live="polite"
+                  title={groupId == null ? 'Your personal categories' : 'Your categories in this group'}
+                  className="inline-flex min-w-7 items-center justify-center rounded-full border border-blue-200 bg-blue-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-blue-900">
+                  {categories.length}
+                </span>
                 </div>
-                <FontAwesomeIcon onClick={()=> {setToggleModal(!ToggleModal);  setMode("Insert");}  } className="pr-3 hover:cursor-pointer text-blue-900" icon={faPlus} width={20} height={20}></FontAwesomeIcon>
+                <button type="button" aria-label="Add category" onClick={() => { setMode("Insert"); setEditListItem(null); setNameCategory(""); setToggleModal(true); }}
+                  className="mr-3 flex h-8 w-8 items-center justify-center rounded-lg text-blue-900 hover:bg-blue-100 focus-visible:outline-blue-500">
+                  <FontAwesomeIcon icon={faPlus} width={16} height={16} />
+                </button>
                 </div>
-                <ul className="max-h-[calc(3*3.5rem)]  overflow-y-scroll    p-3 ">
-                {categories.map((cat,i)=> <li onClick={async (e)=>{
+                <ul key={`${user?.id}-${groupId}`} className="relative max-h-[calc(3*3.5rem)] overflow-y-auto overflow-x-hidden p-3">
+                <AnimatePresence initial={false} mode="popLayout">
+                {categories.map((cat,i)=> <motion.li layout="position"
+                    initial={reducedMotion ? false : { opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: reducedMotion ? 0 : -10 }}
+                    transition={{ opacity: { duration: reducedMotion ? 0 : 0.18 }, x: { duration: reducedMotion ? 0 : 0.2 }, layout: { duration: reducedMotion ? 0 : 0.25, ease: "easeOut" } }}
+                    onClick={async (e)=>{
                     setMenuButtonToggle(i);
                       setCategoryId(cat.id);
                       setTagId(null);
@@ -280,10 +291,14 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                         setTaskFilter(cat.name);
                         
                         setFilterImage(cat.Stickers?.sticker_path);
-                    }} key={i} className={menuButtonToggle == i && typeMenuButtonTogle == "Categories" ? " grid-cols-1 group  h-fit background-animation flex transition-all duration-200 flex-row justify-between align-middle p-1 bg-blue-300   items-center text-blue-900" : "flex transition-all duration-200 flex-row justify-between align-middle p-1   items-center text-blue-900"}  >
-                        <div className=" group-[]:translate-x-3  transition-all  flex flex-row align-middle items-center "> {cat.Stickers?.sticker_path && <Image src={"/img/"+cat.Stickers?.sticker_path+".png"} width={20} height={10} alt="Calendar with number on it"></Image>} <p className="m-2">{cat.name}</p> </div> <div className="flex align-middle items-center"><p className="p-2">3</p><FontAwesomeIcon onClick={()=>{
+                    }} key={cat.id} className={`group flex h-fit flex-row items-center justify-between rounded-md p-1 text-blue-900 transition-colors duration-200 cursor-pointer ${categoryId === cat.id ? "bg-blue-300" : "hover:bg-blue-100"}`}>
+                        <div className="flex min-w-0 flex-row items-center"> {cat.Stickers?.sticker_path && <Image src={"/img/"+cat.Stickers?.sticker_path+".png"} width={20} height={10} alt="Calendar with number on it"></Image>} <p className="m-2 break-words">{cat.name}</p> </div> <div className="flex shrink-0 items-center"><p className="p-2">3</p><FontAwesomeIcon onClick={(event)=>{
+                            event.stopPropagation();
+                            setX(event.clientX);
+                            setY(event.clientY);
                             toggleMenu(); setId(cat.id)}} icon={faEllipsis} className="cursor-pointer"></FontAwesomeIcon></div>
-                    </li>)}
+                    </motion.li>)}
+                </AnimatePresence>
                 
                 </ul>
 

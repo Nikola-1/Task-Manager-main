@@ -102,6 +102,7 @@ export function useTaskComponentState() {
   };
 
   const listModalProps = {
+    categoryId,
     setTaskFilter: setFilter,
     setFilterImage,
     nameCategory,

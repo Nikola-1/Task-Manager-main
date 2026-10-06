@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase/client";
 //import React, {  useEffect, useState } from 'react'
 import { Editor } from '@tiptap/core';
 import TaskCategoryImage from "@/features/tasks/components/TaskDisplay/TaskCategoryImage";
-import { faCheckSquare, faClose, faDotCircle, faDownload, faEllipsis, faFile, faFileAlt, faFlag, faNoteSticky, faSquareCheck, faTag, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCheckSquare, faClose, faDotCircle, faDownload, faEllipsis, faFile, faFileAlt, faFlag, faNoteSticky, faSquareCheck, faTag, faTrashAlt, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { TaskType } from "@/types/TaskType";
 import useOptionsMenu from "@/components/ui/hooks/useOptionsMenu";
@@ -10,7 +10,7 @@ import { OptionsMenu } from "@/components/ui/OptionsMenu/OptionsMenu";
 import {  useEffect, useRef, useState } from 'react';
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { useScope } from "@/features/groups/context/ScopeContext";
-import { DeleteData } from '@/features/tasks/data/tasks.repository';
+import { DeleteData, renameTask } from '@/features/tasks/data/tasks.repository';
 import { GetTags } from '@/features/tags/data/tags.repository';
 import { delay, motion } from 'framer-motion';
 
@@ -28,6 +28,32 @@ export default function Task({ task, filter, setSelectedTask, selectedTask, refr
 
   const { groupId} = useScope();
   const [dataTagsMenu,setDataTagsMenu] = useState<any[] | null>([]);
+  const [renaming, setRenaming] = useState(false);
+  const [draftName, setDraftName] = useState(task.name);
+  const [savingName, setSavingName] = useState(false);
+  const [renameError, setRenameError] = useState('');
+  const savingNameRef = useRef(false);
+
+  const saveName = async () => {
+    if (savingNameRef.current) return;
+    const name = draftName.trim();
+    if (!name) { setRenameError('Enter a task name.'); return; }
+    if (name === task.name) { setRenaming(false); return; }
+    savingNameRef.current = true;
+    setSavingName(true);
+    setRenameError('');
+    try {
+      const savedName = await renameTask(task.id, name);
+      setSelectedTask(current => current?.id === task.id ? { ...current, name: savedName } : current);
+      setRenaming(false);
+      await refreshTasks();
+    } catch {
+      setRenameError('Could not rename task. Please try again.');
+    } finally {
+      savingNameRef.current = false;
+      setSavingName(false);
+    }
+  };
 
   const fetchTagsMenu = async () => {
     const tags = await GetTags(user, groupId);
@@ -62,6 +88,16 @@ useEffect(() => {
    const {user} = useAuth();
    const [tags,setTags] = useState<object[] | null>([]);
   const { open, toggleMenu,setOpen, options } = useOptionsMenu("", {
+      rename: {
+        label: 'Rename',
+        icon: faPen,
+        action: () => {
+          setDraftName(task.name);
+          setRenameError('');
+          setRenaming(true);
+          setOpen(false);
+        },
+      },
      
       complete:{
                 label:"Mark as complete",
@@ -193,11 +229,11 @@ useEffect(() => {
       className={`group flex items-center m-2 `}
     >
       <div  onClick={() => {
-        if (selectedTask === task) return;
+        if (selectedTask?.id === task.id) return;
         setSelectedTask(task); 
         
       }} className={` flex justify-between w-full items-center text-blue-900 transition-all p-3 cursor-pointer ${
-        selectedTask === task ? "bg-blue-400 rounded-md" : "hover:bg-blue-300 rounded-md"
+        selectedTask?.id === task.id ? "bg-blue-400 rounded-md" : "hover:bg-blue-300 rounded-md"
       } ${task.Completed == true ? `opacity-50 bg-blue-300` : ``}`}>
       <div className={`flex items-center align-top ${user?.display == false ? "" : "p-5 "}`}>
         {/*filter == "Completed" ?  <input checked={task.Completed}  type="checkbox" className="m-1" onChange={() => updateStatus(task.id)} /> :  <input  type="checkbox" className="m-1" onChange={() => updateStatus(task.id)} />*/}
@@ -206,7 +242,21 @@ useEffect(() => {
           <div className='flex'>
             <div className='flex'>
             <input checked={task.Completed}  type="checkbox" className="m-1" onChange={() => updateStatus(task.id)} />
-        <p>{task.name}</p>
+        {renaming ? <form className="min-w-0" onClick={event => event.stopPropagation()}
+          onSubmit={event => { event.preventDefault(); void saveName(); }}>
+          <div className="flex flex-wrap items-center gap-1">
+            <input autoFocus aria-label="Task name" value={draftName} disabled={savingName}
+              onFocus={event => event.currentTarget.select()}
+              onChange={event => { setDraftName(event.target.value); setRenameError(''); }}
+              onKeyDown={event => {
+                event.stopPropagation();
+                if (event.key === 'Escape' && !savingName) { event.preventDefault(); setRenaming(false); }
+              }} className="min-w-0 w-40 rounded-md border border-blue-300 bg-white px-2 py-1 text-sm text-blue-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+            <button type="submit" disabled={savingName} className="rounded-md bg-blue-900 px-2 py-1 text-xs text-white disabled:opacity-50">{savingName ? 'Saving…' : 'Save'}</button>
+            <button type="button" disabled={savingName} onClick={() => setRenaming(false)} className="rounded-md border border-blue-300 bg-white px-2 py-1 text-xs text-blue-900 disabled:opacity-50">Cancel</button>
+          </div>
+          {renameError && <p role="alert" className="mt-1 text-xs text-red-700">{renameError}</p>}
+        </form> : <p className="break-words">{task.name}</p>}
         </div>
          {task.category_id && <TaskCategoryImage id={task.category_id} refreshFlag={refreshFlag} />}
          </div>
@@ -258,4 +308,3 @@ useEffect(() => {
     </div>
   );
 }
-

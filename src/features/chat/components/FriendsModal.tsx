@@ -1,248 +1,83 @@
-import Image from "next/image";
-import {
-  faMagnifyingGlass,
-  faUserPlus,
-  faXmark,
-  faCheck,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+﻿'use client';
+import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useAuth } from '@/features/auth/context/AuthContext';
+import { requestFriend, searchUsers } from '@/features/chat/data/chat.repository';
+import { friendName } from '@/features/chat/data/chat.types';
+import type { ChatFriend, Friendship } from '@/features/chat/data/chat.types';
 
-interface UserPreview {
-  id: number;
-  name: string;
-  username: string;
-  image: string;
-  status: "online" | "offline";
-  selected?: boolean;
+interface Props {
+  isActive: boolean;
+  setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
+  relations: Friendship[];
+  onUpdate: () => Promise<void>;
 }
-
-interface AddUsersModalProps {
-  users?: UserPreview[];
-  isActive:boolean,
-  setIsActive:React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const demoUsers: UserPreview[] = [
-  {
-    id: 1,
-    name: "Ana Petrović",
-    username: "@anapetrovic",
-    image: "/img/user.png",
-    status: "online",
-    selected: true,
-  },
-  {
-    id: 2,
-    name: "Nikola Jovanović",
-    username: "@nikolaj",
-    image:"/img/user.png",
-    status: "offline",
-  },
-  {
-    id: 3,
-    name: "Milica Ilić",
-    username: "@milicailic",
-    image: "/img/user.png",
-    status: "online",
-  },
-  {
-    id: 4,
-    name: "Luka Marković",
-    username: "@lukam",
-    image: "/img/user.png",
-    status: "offline",
-  },
-];
-
-export default function FriendsModal({
-  users = demoUsers,isActive,setIsActive
-}: AddUsersModalProps) {
-  const selectedUsers = users.filter((user) => user.selected);
-
-  return (
-    <div className={isActive ? "fixed inset-0 z-50 flex items-center justify-center bg-blue-950/40 px-4 backdrop-blur-sm" : "hidden"}>
-      <div className="flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border-2 border-blue-200 bg-white shadow-2xl">
-        <header className="flex items-center justify-between border-b-2 border-blue-100 px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500 text-white">
-              <FontAwesomeIcon icon={faUserPlus} className="h-5 w-5" />
-            </div>
-
-            <div>
-              <h2 className="text-lg font-bold text-blue-950">
-                Add users
-              </h2>
-
-              <p className="text-sm text-blue-400">
-                Select users you want to add
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-blue-400 transition-all hover:bg-blue-100 hover:text-blue-900"
-          >
-            <FontAwesomeIcon  onClick={()=>setIsActive(false)} icon={faXmark} className="h-5 w-5" />
-          </button>
-        </header>
-
-        <div className="border-b border-blue-100 px-5 py-4">
-          <div className="flex items-center rounded-xl border-2 border-blue-100 bg-blue-50 px-4 py-2.5 transition-all focus-within:border-blue-400">
-            <FontAwesomeIcon
-              icon={faMagnifyingGlass}
-              className="h-4 w-4 text-blue-400"
-            />
-
-            <input
-              type="text"
-              placeholder="Search users..."
-              readOnly
-              className="w-full bg-transparent px-3 text-sm text-blue-950 outline-none placeholder:text-blue-300"
-            />
-          </div>
-
-          <div className="mt-3 flex items-center justify-between">
-            <p className="text-sm font-medium text-blue-900">
-              Available users
-            </p>
-
-            <span className="rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">
-              {users.length} users
-            </span>
-          </div>
-        </div>
-
-        {selectedUsers.length > 0 && (
-          <div className="border-b border-blue-100 bg-blue-50/70 px-5 py-3">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-500">
-              Selected
-            </p>
-
-            <div className="flex flex-wrap gap-2">
-              {selectedUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center gap-2 rounded-full border border-blue-200 bg-white py-1 pl-1 pr-3 shadow-sm"
-                >
-                  <Image
-                    src={user.image}
-                    alt={user.name}
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 rounded-full object-cover"
-                  />
-
-                  <span className="max-w-28 truncate text-xs font-semibold text-blue-900">
-                    {user.name}
-                  </span>
-
-                  <FontAwesomeIcon
-                    icon={faXmark}
-                    className="h-3 w-3 text-blue-400"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="flex-1 overflow-y-auto px-3 py-3">
-          <ul className="space-y-1">
-            {users.map((user) => (
-              <li
-                key={user.id}
-                className={`group flex items-center justify-between rounded-xl border p-3 transition-all duration-200 ${
-                  user.selected
-                    ? "border-blue-300 bg-blue-100"
-                    : "border-transparent hover:border-blue-100 hover:bg-blue-50"
-                }`}
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="relative shrink-0">
-                    <Image
-                      src={user.image}
-                      alt={user.name}
-                      width={44}
-                      height={44}
-                      className="h-11 w-11 rounded-full object-cover"
-                    />
-
-                    <span
-                      className={`absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white ${
-                        user.status === "online"
-                          ? "bg-green-500"
-                          : "bg-slate-400"
-                      }`}
-                    />
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-blue-950">
-                      {user.name}
-                    </p>
-
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-xs text-blue-400">
-                        {user.username}
-                      </p>
-
-                      <span className="text-xs text-blue-200">•</span>
-
-                      <p
-                        className={`text-xs ${
-                          user.status === "online"
-                            ? "text-green-500"
-                            : "text-slate-400"
-                        }`}
-                      >
-                        {user.status === "online" ? "Online" : "Offline"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-                    user.selected
-                      ? "border-blue-500 bg-blue-500 text-white"
-                      : "border-blue-200 bg-white text-transparent group-hover:border-blue-400"
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <footer className="flex items-center justify-between border-t-2 border-blue-100 bg-white px-5 py-4">
-          <p className="text-sm text-blue-500">
-            <span className="font-bold text-blue-900">
-              {selectedUsers.length}
-            </span>{" "}
-            selected
-          </p>
-
-          <div className="flex items-center gap-2">
-            <button
-            onClick={()=>setIsActive(false)}
-              type="button"
-              className="rounded-xl border-2 border-blue-200 px-4 py-2 text-sm font-semibold text-blue-900 transition-all hover:bg-blue-50"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-600"
-            >
-              <FontAwesomeIcon icon={faUserPlus} className="h-4 w-4" />
-              Add users
-            </button>
-          </div>
-        </footer>
+function FindFriends({ setIsActive, relations, onUpdate }: Omit<Props, 'isActive'>) {
+  const { user } = useAuth();
+  const [query, setQuery] = useState('');
+  const [users, setUsers] = useState<ChatFriend[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState<number | null>(null);
+  const [requested, setRequested] = useState<number[]>([]);
+  const [error, setError] = useState('');
+  const input = useRef<HTMLInputElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  const pending = useRef(false);
+  const titleId = useId();
+  useEffect(() => {
+    const focus = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden'; input.current?.focus();
+    return () => { document.body.style.overflow = overflow; focus?.focus(); };
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    setUsers([]); setError('');
+    if (query.trim().length < 2 || !user?.id) { setLoading(false); return; }
+    setLoading(true);
+    const timer = setTimeout(() => {
+      searchUsers(query, user.id).then(data => { if (!cancelled) setUsers(data); })
+        .catch(() => { if (!cancelled) setError('Could not search users. Please try again.'); })
+        .finally(() => { if (!cancelled) setLoading(false); });
+    }, 300);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [query, user?.id]);
+  const close = () => { if (!pending.current) setIsActive(false); };
+  const invite = async (id: number) => {
+    if (!user?.id || pending.current) return;
+    pending.current = true; setSending(id); setError('');
+    try { await requestFriend(user.id, id); setRequested(current => [...current, id]); await onUpdate(); }
+    catch { setError('Could not send the friend request. Please try again.'); }
+    finally { pending.current = false; setSending(null); }
+  };
+  return createPortal(<div className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-950/40 p-4 backdrop-blur-sm" onClick={event => { if (event.target === event.currentTarget) close(); }}>
+    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="flex max-h-[85dvh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-2xl"
+      onKeyDown={event => {
+        if (event.key === 'Escape') { event.stopPropagation(); close(); }
+        if (event.key === 'Tab') {
+          const controls = dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input');
+          if (!controls?.length) return;
+          const first = controls[0], last = controls[controls.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+      }}>
+      <header className="flex items-center justify-between border-b border-blue-200 bg-blue-300 px-5 py-4"><div><h2 id={titleId} className="font-bold text-blue-900">Find friends</h2><p className="mt-1 text-xs text-blue-800">Search by name or username.</p></div>
+        <button type="button" aria-label="Close find friends" disabled={sending !== null} onClick={close} className="rounded-lg px-3 py-1 text-xl text-blue-900 hover:bg-blue-200 disabled:opacity-40">×</button></header>
+      <div className="p-4"><input ref={input} aria-label="Search users" value={query} onChange={event => setQuery(event.target.value)} placeholder="Type at least 2 characters..." className="w-full rounded-lg border border-blue-200 px-3 py-2.5 text-sm text-blue-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" /></div>
+      <div className="min-h-40 overflow-y-auto px-4 pb-4">
+        {error && <p role="alert" className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+        {loading ? <p role="status" className="p-3 text-sm text-blue-500">Searching...</p> : query.trim().length < 2 ? <p className="p-3 text-sm text-blue-500">Find people you want to chat with.</p> : !users.length && !error ? <p className="p-3 text-sm text-blue-500">No matching users.</p> : null}
+        <ul className="space-y-2">{users.map(profile => {
+          const relation = relations.find(row => row.friend.id === profile.id);
+          const connected = Boolean(relation) || requested.includes(profile.id);
+          return <li key={profile.id} className="flex items-center justify-between gap-2 rounded-xl bg-blue-50 p-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-blue-900">{friendName(profile)}</p><p className="truncate text-xs text-blue-500">@{profile.Username}</p></div>
+            <button type="button" disabled={connected || sending !== null} onClick={() => void invite(profile.id)} className="shrink-0 rounded-lg bg-blue-300 px-3 py-2 text-xs font-semibold text-blue-900 disabled:opacity-50">{relation?.accepted ? 'Friends' : connected ? 'Pending' : sending === profile.id ? 'Sending...' : 'Add friend'}</button>
+          </li>;
+        })}</ul>
       </div>
+      <footer className="border-t border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">Your friend must accept the request before appearing in your chats.</footer>
     </div>
-  );
+  </div>, document.body);
 }
+export default function FriendsModal({ isActive, ...props }: Props) { return isActive ? <FindFriends {...props} /> : null; }

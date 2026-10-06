@@ -50,3 +50,74 @@
 .selectFontDDL{
   outline: none;
 }
+.task-editor .editor-tool,
+.task-editor .editor-select {
+  min-height: 34px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  background: white;
+  padding: 5px 9px;
+  font-size: 12px;
+  color: #1e3a8a;
+}
+.task-editor .editor-tool:hover { background: #dbeafe; color: #1e3a8a; }
+.task-editor .editor-tool.is-active { border-color: #60a5fa; background: #93c5fd; color: #1e3a8a; }
+.task-editor .editor-tool:disabled { opacity: .35; cursor: not-allowed; }
+.task-editor button:focus-visible,
+.task-editor select:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+.task-editor-content > div { min-height: 100%; }
+.task-editor-content .tiptap {
+  min-height: 100%;
+  padding: 20px;
+  outline: none;
+  line-height: 1.75;
+  color: #374151;
+  caret-color: #2563eb;
+  transition: box-shadow 180ms ease;
+}
+.task-editor-content .tiptap:focus { box-shadow: inset 3px 0 #93c5fd; }
+.task-editor-content .tiptap > * + * { margin-top: .75em; }
+.task-editor-content .tiptap h1 { font-size: 1.75rem; font-weight: 700; line-height: 1.3; }
+.task-editor-content .tiptap h2 { font-size: 1.4rem; font-weight: 600; line-height: 1.4; }
+.task-editor-content .tiptap h3 { font-size: 1.15rem; font-weight: 600; }
+.task-editor-content .tiptap ul { list-style: disc; padding-left: 1.5rem; }
+.task-editor-content .tiptap ol { list-style: decimal; padding-left: 1.5rem; margin-left: 0; }
+.task-editor-content .tiptap blockquote { border-left: 3px solid #bfdbfe; padding-left: 1rem; color: #6b7280; }
+.task-editor-content .tiptap pre { overflow-x: auto; border-radius: 8px; background: #f3f4f6; padding: 12px; }
+.task-editor-content .tiptap code { border-radius: 4px; background: #f3f4f6; padding: 2px 4px; }
+.task-editor-content .tiptap a { color: #2563eb; text-decoration: underline; }
+.task-editor-content .tiptap hr { margin: 1rem 0; border-top: 1px solid #e5e7eb; }
+
+@media (prefers-reduced-motion: reduce) {
+  .task-editor-content .tiptap { transition: none; }
+}
+
+.task-editor .editor-dropdown { position: relative; min-width: 0; }
+.task-editor .editor-dropdown-trigger {
+  display: flex; align-items: center; gap: 8px; min-height: 36px;
+  max-width: 190px; border: 1px solid #bfdbfe; border-radius: 8px;
+  background: #fff; padding: 5px 10px; color: #1e3a8a;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+.task-editor .editor-dropdown-trigger:hover { border-color: #93c5fd; background: #eff6ff; }
+.task-editor .editor-dropdown-trigger.is-open { border-color: #60a5fa; background: #eff6ff; box-shadow: 0 0 0 2px #dbeafe; }
+.editor-dropdown-icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 5px; background: #dbeafe; color: #1d4ed8; font-weight: 600; flex-shrink: 0; }
+.editor-dropdown-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor-dropdown-chevron { margin-left: auto; width: 14px; height: 14px; flex-shrink: 0; fill: none; stroke: #3b82f6; stroke-width: 1.6; transition: transform 150ms ease; }
+.is-open .editor-dropdown-chevron { transform: rotate(180deg); }
+.editor-dropdown-menu {
+  position: absolute; top: calc(100% + 7px); left: 0; z-index: 30;
+  width: max-content; min-width: 190px; max-width: min(240px, 80vw); max-height: 260px; overflow-y: auto;
+  border: 1px solid #bfdbfe; border-radius: 10px; background: #fff; padding: 5px;
+  box-shadow: 0 8px 24px rgb(30 58 138 / 14%); outline: none;
+}
+.editor-dropdown-label { padding: 5px 8px 7px; color: #64748b; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.editor-dropdown:nth-child(2) .editor-dropdown-menu { left: auto; right: 0; }
+.editor-dropdown-option { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 36px; border-radius: 6px; padding: 7px 9px; color: #1e3a8a; font-size: 13px; cursor: pointer; }
+.editor-dropdown-option.is-focused { background: #eff6ff; }
+.editor-dropdown-option.is-selected { background: #dbeafe; }
+.editor-dropdown-check { width: 14px; flex-shrink: 0; color: #2563eb; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  .task-editor .editor-dropdown-trigger, .editor-dropdown-chevron { transition: none; }
+}

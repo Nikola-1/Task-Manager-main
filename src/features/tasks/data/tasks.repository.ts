@@ -2,6 +2,19 @@ import { supabase } from '@/lib/supabase/client';
 import type { UserType as Usertype } from '@/types/UserType';
 import type { TaskType } from '@/types/TaskType';
 
+export async function renameTask(id: number, name: string): Promise<string> {
+  const trimmedName = name.trim();
+  if (!trimmedName) throw new Error('Task name cannot be empty.');
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ name: trimmedName })
+    .eq('id', id)
+    .select('id, name')
+    .single();
+  if (error || !data) throw new Error(error?.message ?? 'Could not rename task.');
+  return data.name;
+}
+
 export async function saveContent(id:number,html:string){
     
           
@@ -96,9 +109,10 @@ export async function AddTask(
       }
 
 export async function deleteDeleted(tasksArray:Array<TaskType>){
-      
-       tasksArray.forEach(async (e)=>await supabase.from("tasks").delete().eq("id", e.id));
-      
+      const ids = tasksArray.filter(task => task.Deleted).map(task => task.id);
+      if (!ids.length) return;
+      const { error } = await supabase.from("tasks").delete().in("id", ids).eq("Deleted", true);
+      if (error) throw new Error(error.message);
     }
 
 export async function DeleteData(id:number){
