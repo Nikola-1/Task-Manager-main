@@ -233,7 +233,7 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
                             <p  className="m-1">{inputValue == "" || inputValue == " " ? "Add task" : ""}</p>
                         </div>
                              <div className="flex  items-center">
-                                <p>{fullDate != new Date() && fullDate != null ? new Date(fullDate.getTime() - 1 * 24 * 60 * 60 * 1000).toLocaleDateString("sr-RS"): ""}</p>
+                                <p>{fullDate?.toLocaleDateString("sr-RS") ?? ""}</p>
                                 <FontAwesomeIcon className="m-1" onClick={handleOpenModal} icon={faCalendar} width={15} height={15}>
                                     </FontAwesomeIcon><FontAwesomeIcon icon={faArrowDown} width={15} height={15}></FontAwesomeIcon>
                         </div>

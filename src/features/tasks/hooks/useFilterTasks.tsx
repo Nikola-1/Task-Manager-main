@@ -2,16 +2,15 @@
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { useScope } from "@/features/groups/context/ScopeContext";
-import { group } from "console";
 import { useEffect, useRef, useState } from "react";
 
 export default function useFilterTasks(
   filter: string,
   isCategory: boolean | null,
   
-  category_id: number,
+  category_id: number | null,
   isTag:boolean | null,
-  TagId:number,
+  TagId:number | null,
   
   
 ) {
@@ -31,7 +30,7 @@ export default function useFilterTasks(
      
 
 
-      if (isCategory !== null && category_id !== null) { // ako je kategorija u pitanju
+      if (isCategory === true && category_id !== null && category_id > 0) { // ako je kategorija u pitanju
         let q = supabase  // pronadji sve taskove sa datom kategorijom a da nisu deleteovani
           .from("Users_Tasks")
           .select("tasks(*,tags_tasks(*,Tags(*)))")
@@ -46,7 +45,10 @@ export default function useFilterTasks(
 
    
       else {
-        const today = new Date().toISOString().split("T")[0];
+        const localDateString = (date: Date) =>
+          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const date = new Date();
+        const today = localDateString(date);
 
         if (filter === "Today") {
           let q = supabase
@@ -61,10 +63,7 @@ export default function useFilterTasks(
         }
 
         else if (filter === "7Days") {
-          const date = new Date();
-          const next7 = new Date(date.setDate(date.getDate() + 7))
-            .toISOString()
-            .split("T")[0];
+          const next7 = localDateString(new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7));
 
           let q = supabase
             .from("Users_Tasks")
@@ -113,7 +112,7 @@ export default function useFilterTasks(
         }
       }
 
-      if(isTag !== null && TagId !== null){
+      if(isTag === true && TagId !== null){
          let q =  supabase
           .from("tags_tasks")
           .select("tasks(*,tags_tasks(*,Tags(*)))")

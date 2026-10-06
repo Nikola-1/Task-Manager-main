@@ -243,7 +243,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                     </li>
                     <li onClick={async()=>{
                         setTaskFilter("7Days");
-                        setCategoryId(0);
+                        setCategoryId(null);
                         setTagId(null);
                          setMenuButtonToggle(-1);
                         setSelectedTask(null);

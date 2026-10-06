@@ -38,7 +38,7 @@ export async function AddTask(
 
       ){
         // DATE kolona → šaljemo YYYY-MM-DD
-        const dateStr = fullDate.toISOString().slice(0, 10);
+        const dateStr = `${fullDate.getFullYear()}-${String(fullDate.getMonth() + 1).padStart(2, "0")}-${String(fullDate.getDate()).padStart(2, "0")}`;
       
         // 1️⃣ INSERT TASK (SAMO JEDNOM)
         const taskPayload: any = {
