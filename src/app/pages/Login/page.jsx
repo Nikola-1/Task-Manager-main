@@ -1,12 +1,1 @@
-'use client'
-
-import HabitsList from "@/app/components/HabitComponent/HabitList/HabitList";
-
-
-export default function LoginPage(){
-      return(
-        <LoginComponent></LoginComponent>
-      )  
-
-    
-}
+export { default } from '@/features/auth/pages/Login/page';

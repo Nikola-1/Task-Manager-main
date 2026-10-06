@@ -1,14 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-    typescript: {
-   
+  typescript: {
+    // Existing type errors are tracked separately by npm run typecheck.
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    
-    ignoreDuringBuilds: true,
   },
 };
 

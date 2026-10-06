@@ -1,7 +1,7 @@
 "use client";
 
-import Nav from "./components/fixed/nav";
-import LoginComponent from "./components/Login/LoginComponent";
+import Nav from "@/components/layout/nav";
+import LoginComponent from "@/features/auth/components/Login/LoginComponent";
 import { useState, useEffect } from "react";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

@@ -1,11 +1,1 @@
-import AccountComponent from '@/app/components/AccountComponent/AccountComponent'
-import React from 'react'
-
-export default function page(){
-  return (
-    
-      <AccountComponent/>
-    
-  )
-}
-
+export { default } from '@/features/account/pages/Account/page';

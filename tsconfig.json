@@ -38,5 +38,5 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/dev/types/**/*.ts"
-, "src/app/pages/Login/page.jsx"  ]
+, "src/**/*.jsx", "src/**/*.js"  ]
 }

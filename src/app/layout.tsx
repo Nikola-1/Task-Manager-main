@@ -1,11 +1,11 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 
-import {AuthProvider} from "./context/AuthContext";
-import ClientLayout from "./ClientLayout";
-import { ScopeProvider } from "./context/ScopeContext";
+import {AuthProvider} from "@/features/auth/context/AuthContext";
+import ClientLayout from "@/app/ClientLayout";
+import { ScopeProvider } from "@/features/groups/context/ScopeContext";
 
 
 
