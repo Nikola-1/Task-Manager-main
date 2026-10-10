@@ -33,7 +33,7 @@ export default function useFilterTasks(
       if (isCategory === true && category_id !== null && category_id > 0) { // ako je kategorija u pitanju
         let q = supabase  // pronadji sve taskove sa datom kategorijom a da nisu deleteovani
           .from("Users_Tasks")
-          .select("tasks(*,tags_tasks(*,Tags(*)))")
+          .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
           .eq("tasks.category_id", category_id)
           .eq("tasks.Deleted", false)
           .eq("User_id", user?.id)
@@ -53,7 +53,7 @@ export default function useFilterTasks(
         if (filter === "Today") {
           let q = supabase
             .from("Users_Tasks")
-            .select("tasks(*,tags_tasks(*,Tags(*)))")
+            .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
             .eq("tasks.date", today)
             .eq("tasks.Deleted", false)
             .eq("User_id", user?.id);
@@ -67,7 +67,7 @@ export default function useFilterTasks(
 
           let q = supabase
             .from("Users_Tasks")
-            .select("tasks(*,tags_tasks(*,Tags(*)))")
+            .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
             .gte("tasks.date", today)
             .lte("tasks.date", next7)
             .eq("tasks.Deleted", false)
@@ -80,7 +80,7 @@ export default function useFilterTasks(
         else if (filter === "Completed") {
           let q = supabase
             .from("Users_Tasks")
-            .select("tasks(*,tags_tasks(*,Tags(*)))")
+            .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
             .eq("tasks.Completed", true)
             .eq("tasks.Deleted", false)
             .eq("User_id", user?.id);
@@ -94,7 +94,7 @@ export default function useFilterTasks(
         
            let q = supabase
             .from("Users_Tasks")
-            .select("tasks(*,tags_tasks(*,Tags(*)))")
+            .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
             .eq("tasks.Deleted", true)
             .eq("User_id", user?.id);
             if (groupId != null) q = q.eq("tasks.Group_id", groupId);
@@ -107,7 +107,7 @@ export default function useFilterTasks(
           
           ({ data, error } = await supabase
             .from("Users_Tasks")
-            .select("tasks(*,tags_tasks(*,Tags(*)))")
+            .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
             .eq("User_id", user?.id));
         }
       }
@@ -115,7 +115,7 @@ export default function useFilterTasks(
       if(isTag === true && TagId !== null){
          let q =  supabase
           .from("tags_tasks")
-          .select("tasks(*,tags_tasks(*,Tags(*)))")
+          .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
           .eq("tasks.Deleted", false)
           .eq("id_tag", TagId)
           .eq("user_id", user?.id)
@@ -174,6 +174,10 @@ export default function useFilterTasks(
             )
           );
         }
+      )
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'Users_Tasks', filter: `User_id=eq.${user?.id}` },
+        () => { void fetchData(); }
       )
       .subscribe();
 

@@ -1,12 +1,15 @@
-.circle{
-    background-color: white;
-    border-radius: 50%;
-    
-    padding: 12px;
-    height: 10px;
-   margin: 0.2rem;
+﻿.habits-page button:focus-visible,
+.habits-page select:focus-visible,
+.habits-page input:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+.habits-page button { touch-action: manipulation; }
+.habit-original-row > div { flex-wrap: wrap; }
+.habit-week-dots { margin-left: auto; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .habit-original-row .habit-week-dots { order: 3; width: 100%; justify-content: flex-end; padding-top: 4px; }
 }
-.circle:hover{
-    background-color: #7782a4;
-    cursor: pointer;
+@media (max-width: 420px) {
+  .habit-original-row .habit-week-dots { order: 3; width: 100%; justify-content: flex-end; padding-top: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .habits-page * { transition-duration: 0ms !important; }
 }

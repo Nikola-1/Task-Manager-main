@@ -254,7 +254,7 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
             </div> 
                 
          {selectedTaskProp != null ? <div className="task-description flex h-dvh min-h-0 min-w-0 w-full flex-col md:w-2/4">
-           <TaskEditor key={selectedTaskProp.id} editor={editor} task={selectedTaskProp} refreshTasks={refreshTasks} />
+           <TaskEditor key={selectedTaskProp.id} editor={editor} task={tasksArray.find(task => task.id === selectedTaskProp.id) ?? selectedTaskProp} refreshTasks={refreshTasks} />
          </div> : <div className="hidden md:flex md:w-2/4 items-center justify-center p-8 text-sm text-gray-400">Select a task to edit its notes.</div>}
 
            <OptionsMenu options={options} open={open} closeMenu={()=>setOpen(!open)} x={X} y={Y} />

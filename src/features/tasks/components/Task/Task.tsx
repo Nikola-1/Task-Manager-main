@@ -13,6 +13,8 @@ import { useScope } from "@/features/groups/context/ScopeContext";
 import { DeleteData, renameTask } from '@/features/tasks/data/tasks.repository';
 import { GetTags } from '@/features/tags/data/tags.repository';
 import { delay, motion } from 'framer-motion';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import SendTaskDialog from '@/features/tasks/components/Task/SendTaskDialog';
 
 export interface TaskProps {
   task: TaskType;
@@ -29,6 +31,7 @@ export default function Task({ task, filter, setSelectedTask, selectedTask, refr
   const { groupId} = useScope();
   const [dataTagsMenu,setDataTagsMenu] = useState<any[] | null>([]);
   const [renaming, setRenaming] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [draftName, setDraftName] = useState(task.name);
   const [savingName, setSavingName] = useState(false);
   const [renameError, setRenameError] = useState('');
@@ -88,6 +91,13 @@ useEffect(() => {
    const {user} = useAuth();
    const [tags,setTags] = useState<object[] | null>([]);
   const { open, toggleMenu,setOpen, options } = useOptionsMenu("", {
+      ...(groupId !== null && user && !task.Deleted && {
+        send: {
+          label: 'Send to colleague',
+          icon: faPaperPlane,
+          action: () => { setSharing(true); setOpen(false); },
+        },
+      }),
       rename: {
         label: 'Rename',
         icon: faPen,
@@ -305,6 +315,7 @@ useEffect(() => {
          <input type='file' ref={fileInput} className="hidden " />
         <OptionsMenu open={open} options={options} x={X} y={Y} closeMenu={closeMenu} />
         <OptionsMenu open={openMenu2} options={optionsTag2} x={X+150} y={Y+50} closeMenu={ClosemenuTag2} />
+        {sharing && groupId !== null && user && <SendTaskDialog key={`${task.id}-${groupId}-${user.id}`} taskId={task.id} taskName={task.name} groupId={groupId} senderId={user.id} close={() => setSharing(false)} />}
     </div>
   );
 }

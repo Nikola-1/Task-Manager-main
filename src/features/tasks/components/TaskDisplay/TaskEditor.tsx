@@ -6,6 +6,7 @@ import type { Editor } from '@tiptap/core';
 import type { TaskType } from '@/types/TaskType';
 import { saveContent } from '@/features/tasks/data/tasks.repository';
 import EditorDropdown from '@/features/tasks/components/TaskDisplay/EditorDropdown';
+import Image from 'next/image';
 
 interface TaskEditorProps {
   editor: Editor;
@@ -78,6 +79,12 @@ export default function TaskEditor({ editor, task, refreshTasks }: TaskEditorPro
     }),
   });
   const dirty = savedHtml !== null && state.html !== savedHtml;
+  const tags = [...new Map((task.tags_tasks ?? []).flatMap(link => link.Tags ? [[link.Tags.id, link.Tags] as const] : [])).values()];
+  const tagColor = tags[0]?.color;
+  const headerColor = /^#(?:[\da-f]{3}|[\da-f]{6})$/i.test(tagColor ?? '') ? tagColor! : '#93c5fd';
+  const headerHex = headerColor.length === 4 ? headerColor.slice(1).split('').map(value => value + value).join('') : headerColor.slice(1);
+  const headerBackground = `#${[0, 2, 4].map(offset => Math.round(parseInt(headerHex.slice(offset, offset + 2), 16) * 0.8 + 255 * 0.2).toString(16).padStart(2, '0')).join('')}`;
+  const titleColor = `#${[0, 2, 4].map(offset => Math.round(parseInt(headerHex.slice(offset, offset + 2), 16) * 0.25).toString(16).padStart(2, '0')).join('')}`;
   const save = async () => {
     if (!dirty || savingRef.current) return;
     const html = editor.getHTML();
@@ -106,9 +113,18 @@ export default function TaskEditor({ editor, task, refreshTasks }: TaskEditorPro
     aria-label={`Notes for ${task.name}`} onKeyDown={event => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); void save(); }
     }}>
-    <header className="shrink-0 border-b border-blue-200 bg-blue-300 px-5 py-4">
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-blue-800">Task notes</p>
-      <h2 className="break-words text-lg font-semibold text-blue-900">{task.name}</h2>
+    <header className="shrink-0 border-b px-5 py-4" style={{ backgroundColor: headerBackground, borderColor: `${titleColor}30`, color: titleColor }}>
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 text-xs tracking-wide">
+          {tags.length > 0 && <strong className="break-words font-bold">{tags.map(tag => tag.name || 'Tag').join(' · ')}</strong>}
+          <span className="font-medium uppercase">Task notes</span>
+        </p>
+        {task.category && <span className="ml-auto inline-flex max-w-[50%] shrink-0 items-center gap-2 rounded-lg bg-white/70 px-2.5 py-1.5 text-xs font-semibold">
+          {task.category.Stickers?.sticker_path && <Image src={`/img/${task.category.Stickers.sticker_path}.png`} alt="" width={20} height={20} className="shrink-0 object-contain" />}
+          <span className="break-words">{task.category.name || 'Category'}</span>
+        </span>}
+      </div>
+      <h2 className="break-words text-lg font-bold" style={{ color: titleColor }}>{task.name}</h2>
     </header>
     <div role="group" aria-label="Text formatting" className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-blue-200 bg-blue-50 px-3 py-2.5">
       <EditorDropdown label="Text style" icon="T" value={String(state.heading)} options={[
