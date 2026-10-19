@@ -31,10 +31,21 @@ export default function TaskComponent(){
    
     
     return(
-       <div className="flex md:flex-row flex-col w-full ">
-          
+       <div className="task-workspace flex md:flex-row flex-col w-full ">
+        <div className="task-console-screen flex min-w-0 w-full flex-col md:flex-row">
         <TaskMenu {...taskMenuProps}></TaskMenu>
         <TaskDisplay {...taskDisplayProps}></TaskDisplay>
+        </div>
+        <div className="console-controls" role="group" aria-label="Console controls">
+          <div className="console-dpad">
+            <button type="button" className="console-direction console-up" aria-label="Up" />
+            <button type="button" className="console-direction console-left" aria-label="Left" />
+            <button type="button" className="console-direction console-right" aria-label="Right" />
+            <button type="button" className="console-direction console-down" aria-label="Down" />
+          </div>
+          <div className="console-system-buttons"><button type="button" aria-label="Select" /><button type="button" aria-label="Start" /></div>
+          <div className="console-action-buttons"><button type="button" aria-label="B">B</button><button type="button" aria-label="A">A</button></div>
+        </div>
         <ListModal {...listModalProps}></ListModal>
         <CalendarModal {...calendarModalProps}></CalendarModal>
         <TagModalComponent {...tagModalProps} />

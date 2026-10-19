@@ -224,7 +224,10 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
             <div className={toggle ? "visible flex flex-col" : " hidden md:flex flex-col "}>
             <div className="Task-intervals ">
                 {
-               group &&   <div className="p-3 text-center flex flex-col-reverse justify-center items-center bg-blue-500 font-bold text-white"><Image src={"/img/"+group?.image_path+".png"} alt="group icon" width={30} height={30}/><h1 className={"text-3xl "+Micro.className}>{group?.Name}</h1></div>
+               group && <div className="task-group-heading">
+                 <div className="task-group-emblem"><Image src={"/img/"+group.image_path+".png"} alt="" width={36} height={36}/></div>
+                 <div className="min-w-0 flex-1"><p className="task-group-caption">Group workspace</p><h1 className={"task-group-name "+Micro.className}>{group.Name}</h1></div>
+               </div>
             }
                 <ul className="p-3">
                 
@@ -236,7 +239,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                          setSelectedTask(null);
                          
                          setFilterImage(null);
-                        }} className={menuButtonToggle == -2 ? "flex flex-row justify-between align-middle p-1 bg-blue-300   items-center text-blue-900 hover:cursor-pointer transition-all" : "flex flex-row justify-between align-middle p-1    items-center text-blue-900 transition-all"}>
+                        }} className={menuButtonToggle == -2 ? "task-menu-item task-menu-selected flex flex-row justify-between align-middle p-1 items-center text-blue-900 hover:cursor-pointer transition-all" : "task-menu-item flex flex-row justify-between align-middle p-1 items-center text-blue-900 transition-all"}>
                         <div className="flex flex-row align-middle items-center hover:cursor-pointer"><Image src={Today} width={30} height={20} alt="Calendar with number on it"></Image> <p className="m-2">Today</p> </div> <p>3</p>
                     </li>
                     <li onClick={async()=>{
@@ -246,7 +249,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                          setMenuButtonToggle(-1);
                         setSelectedTask(null);
                          setFilterImage(null);
-                    }} className={menuButtonToggle == -1 ? "flex flex-row justify-between align-middle p-1 bg-blue-300   items-center text-blue-900 hover:cursor-pointer   transition-all" : "flex flex-row justify-between align-middle p-1   hover:cursor-pointer items-center text-blue-900 transition-all"}>
+                    }} className={menuButtonToggle == -1 ? "task-menu-item task-menu-selected flex flex-row justify-between align-middle p-1 items-center text-blue-900 hover:cursor-pointer transition-all" : "task-menu-item flex flex-row justify-between align-middle p-1 hover:cursor-pointer items-center text-blue-900 transition-all"}>
                         <div className="flex flex-row align-middle items-center"><Image src={SevenDays} width={30} height={20} alt="Calendar with number on it"></Image><p className="m-2">7 days</p> </div> <p>3</p>
                     </li>
                     <li className="flex justify-between   p-1   items-center text-blue-900 hover:cursor-pointer transition-all">
@@ -263,7 +266,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                 <div className="flex items-center   justify-between ">
                 <div className="flex min-w-0 items-center gap-2 px-3 py-3">
                 <h5 className="font-bold text-blue-900">List</h5>
-                <span aria-label={`${categories.length} categories`} aria-live="polite"
+                <span data-category-count aria-label={`${categories.length} categories`} aria-live="polite"
                   title={groupId == null ? 'Your personal categories' : 'Your categories in this group'}
                   className="inline-flex min-w-7 items-center justify-center rounded-full border border-blue-200 bg-blue-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-blue-900">
                   {categories.length}
@@ -291,7 +294,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                         setTaskFilter(cat.name);
                         
                         setFilterImage(cat.Stickers?.sticker_path);
-                    }} key={cat.id} className={`group flex h-fit flex-row items-center justify-between rounded-md p-1 text-blue-900 transition-colors duration-200 cursor-pointer ${categoryId === cat.id ? "bg-blue-300" : "hover:bg-blue-100"}`}>
+                    }} key={cat.id} className={`task-menu-item group flex h-fit flex-row items-center justify-between rounded-md p-1 text-blue-900 transition-colors duration-200 cursor-pointer ${categoryId === cat.id ? "task-menu-selected" : "hover:bg-blue-100"}`}>
                         <div className="flex min-w-0 flex-row items-center"> {cat.Stickers?.sticker_path && <Image src={"/img/"+cat.Stickers?.sticker_path+".png"} width={20} height={10} alt="Calendar with number on it"></Image>} <p className="m-2 break-words">{cat.name}</p> </div> <div className="flex shrink-0 items-center"><p className="p-2">3</p><FontAwesomeIcon onClick={(event)=>{
                             event.stopPropagation();
                             setX(event.clientX);
@@ -324,7 +327,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                         {tags?.map(tag=>
                                 tag.parent_id == null ?
                                <div key={tag.id} className="w-full">
-                            <div onClick={()=>{setMenuButtonToggle(tag.id);setTypeMenuButtonToggle("Tags"); setCategoryId(0); setTagId(tag.id); setFilter(tag.name); setFilterImage(null); }}  className={`group translate-x-3 w-11/12 justify-between transition-all   flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag.id && typeMenuButtonTogle == "Tags" ? "bg-blue-300 " : ""}`}>
+                            <div onClick={()=>{setMenuButtonToggle(tag.id);setTypeMenuButtonToggle("Tags"); setCategoryId(0); setTagId(tag.id); setFilter(tag.name); setFilterImage(null); }}  className={`task-menu-item group translate-x-3 w-11/12 justify-between transition-all   flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag.id && typeMenuButtonTogle == "Tags" ? "task-menu-selected" : ""}`}>
                             <div className={"flex flex-row justify-center align-middle items-center"}>
                             <FontAwesomeIcon icon={faTag} width={20} height={10}></FontAwesomeIcon> 
                             <p className="m-2">{tag.name}</p>
@@ -339,7 +342,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                              {tags?.map(tag2=>
                                 tag2.parent_id == tag.id ?
                                 
-                                <div key={tag2.id} onClick={()=>{setMenuButtonToggle(tag2.id);setTypeMenuButtonToggle("Tags"); setTagId(tag2.id); setFilter(tag2.name); setFilterImage(null);}}  className={`group translate-x-3 pl-5 w-11/12 justify-between transition-all   flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag2.id && typeMenuButtonTogle == "Tags" ? "bg-blue-300 " : ""}`}>
+                                <div key={tag2.id} onClick={()=>{setMenuButtonToggle(tag2.id);setTypeMenuButtonToggle("Tags"); setTagId(tag2.id); setFilter(tag2.name); setFilterImage(null);}}  className={`task-menu-item group translate-x-3 pl-5 w-11/12 justify-between transition-all   flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag2.id && typeMenuButtonTogle == "Tags" ? "task-menu-selected" : ""}`}>
                             <div className={"flex flex-row justify-center align-middle items-center"}>
                             <FontAwesomeIcon icon={faTag} width={20} height={10}></FontAwesomeIcon> 
                             <p className="m-2">{tag2.name}</p>
@@ -370,13 +373,13 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                   setSelectedTask(null);
                 setFilterImage(null);
                 
-            }} className="p-3 flex justify-start items-center align-middle text-center align-middle hover:cursor-pointer text-blue-900">
+            }} className="task-menu-item p-3 flex justify-start items-center align-middle text-center hover:cursor-pointer text-blue-900">
       
                 <FontAwesomeIcon icon={faCheckSquare} width={20} height={10} className="text-blue-300"/>
 
                 <p className="px-2">Completed</p>
                 </div>
-                <div onClick={()=>{setTaskFilter("Deleted");  setCategoryId(null); setTagId(null); setFilterImage(null); setMenuButtonToggle(-4);}} className="p-3 flex justify-start items-center align-middle text-center align-middle hover:cursor-pointer text-blue-900">
+                <div onClick={()=>{setTaskFilter("Deleted");  setCategoryId(null); setTagId(null); setFilterImage(null); setMenuButtonToggle(-4);}} className="task-menu-item p-3 flex justify-start items-center align-middle text-center hover:cursor-pointer text-blue-900">
                 <FontAwesomeIcon icon={faTrash} width={20} height={10} className="text-blue-300"/>
                 <p className="px-2">Deleted</p>
                 </div>

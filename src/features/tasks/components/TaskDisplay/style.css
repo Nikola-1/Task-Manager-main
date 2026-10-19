@@ -43,6 +43,26 @@
   opacity: 0.6;
 }
 
+.task-name-entry {
+  transition: background-color 180ms ease, box-shadow 180ms ease;
+}
+.task-name-entry:focus-within {
+  background-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgb(96 165 250 / 22%);
+}
+.task-name-entry-icon {
+  opacity: .75;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+.task-name-entry:focus-within .task-name-entry-icon {
+  transform: rotate(90deg);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .task-name-entry, .task-name-entry-icon { transition: none; }
+  .task-name-entry:focus-within .task-name-entry-icon { transform: none; }
+}
+
 .selectFontDDL option{
     border: none;
     outline: none;

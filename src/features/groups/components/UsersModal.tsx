@@ -24,7 +24,7 @@ interface GroupsModalProps{
     editListItem:object | null;
     Mode:string | undefined;
     setMode:React.Dispatch<React.SetStateAction<string | undefined>>;
-    nameCategory:string | undefined;
+    nameCategory?:string;
      isActiveUser:boolean,
     setActiveUser:React.Dispatch<React.SetStateAction<boolean>>;
     refreshFlagGroups:()=>void,
@@ -143,10 +143,10 @@ function toggleUserId(userId: number) {
       search();
     },[searchUser])
     return(
-        <div className={isActiveUser == true ? "flex absolute w-8/12 translate-x-1/4  top-2/4 left-0 shadow-md rounded-md bg-white  bottom-2/4 m-auto h-3/4  " : " hidden"} >
-        <div className=" inset-0 flex items-center align-middle justify-center w-full">
+        <div className={isActiveUser == true ? "fixed inset-0 z-50 flex items-center justify-center bg-blue-950/40 p-4 backdrop-blur-sm" : " hidden"} >
+        <div className="flex h-[min(600px,85dvh)] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="flex  justify-stretch w-full h-full relative">
-        <div className="flex flex-col p-3 relative  w-full ">
+        <div className="flex min-w-0 flex-1 flex-col p-5 relative">
             <h3>{Mode == "Insert" && "Add users"}{Mode == "Delete" && "Delete users"}</h3>
             <div className="flex flex-col w-full">
                 <div className="flex w-full">
@@ -169,8 +169,8 @@ function toggleUserId(userId: number) {
             } } className="hover:bg-blue-300  hover:text-white max-h-full hover:cursor-pointer float-right absolute bottom-0 p-2 m-1 border-2 text-blue-300 border-blue-300 rounded-md ">
                 <p className="">Close</p>
             </div>
-            <input onChange={async(e)=>{setSearchUser(e.currentTarget.value);}} className="m-3 border-2 border-blue-300 outline-none" placeholder="search user" type="text"></input>
-                <ul className="flex flex-col justify-start items-start h-2/4 overflow-scroll mt-1 w-full ">
+            <input onChange={async(e)=>{setSearchUser(e.currentTarget.value);}} className="my-4 rounded-xl border border-blue-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400" placeholder="search user" type="text"></input>
+                <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-14 w-full">
                    {Users.map((x)=>
                             <li key={x.id}
   onClick={() => toggleUserId(x.id)}
@@ -226,8 +226,8 @@ function toggleUserId(userId: number) {
   {Mode === "Delete" ? <p>Remove</p> : <p>Add</p>}
 </div>
         </div>
-            <div className="w-3/4 h-full rounded-r-md">
-                    <Image src={"/img/" + picture?.picture_path + ".jpg"} alt={""} width={840} height={840}  className="w-full h-full rounded-md" />
+            <div className="hidden h-full w-1/3 shrink-0 sm:block">
+                    <Image src={"/img/" + picture?.picture_path + ".jpg"} alt={""} width={840} height={840}  className="h-full w-full object-cover" />
             </div>
           
         </div>

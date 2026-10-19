@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Press+Start+2P&family=Roboto:wght@400;700&family=VT323&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,14 +7,40 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --background: #0a0a0a;
     --foreground: #ededed;
+    color-scheme: dark;
   }
 }
+
+:root[data-theme="dark"] {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  color-scheme: dark;
+}
+
+/* Adapt the existing shared surfaces while preserving status and tag colors. */
+[data-theme="dark"] .bg-white { background-color: #1e293b; }
+[data-theme="dark"] .bg-blue-50,
+[data-theme="dark"] .bg-blue-100 { background-color: #172554; }
+[data-theme="dark"] .bg-blue-200 { background-color: #1e3a5f; }
+[data-theme="dark"] .bg-blue-300 { background-color: #1e3a5f; }
+[data-theme="dark"] .bg-blue-400 { background-color: #1e40af; }
+[data-theme="dark"] .text-blue-900,
+[data-theme="dark"] .text-blue-800,
+[data-theme="dark"] .text-blue-700 { color: #bfdbfe; }
+[data-theme="dark"] .text-red-700 { color: #fca5a5; }
+[data-theme="dark"] .hover\:bg-blue-100:hover,
+[data-theme="dark"] .hover\:bg-gray-100:hover { background-color: #334155; }
+[data-theme="dark"] .hover\:bg-blue-300:hover { background-color: #1e40af; }
+[data-theme="dark"] input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+[data-theme="dark"] textarea,
+[data-theme="dark"] select { background-color: #1e293b; color: #e2e8f0; }
 
 body {
   color: var(--foreground);
@@ -33,3 +59,873 @@ h3{
 p{
   font-family: 'Roboto',sans-serif;
 }
+
+/* Retro Game is an explicit theme, independent of the device color scheme. */
+:root[data-theme="retro"] {
+  --background: #120f25;
+  --foreground: #fff4cf;
+  --retro-panel: #241b3c;
+  --retro-selected: #453064;
+  --retro-accent: #79f2c0;
+  --retro-gold: #ffd66b;
+  --retro-font: 'VT323', 'Courier New', monospace;
+  --retro-title-font: 'Press Start 2P', 'Courier New', monospace;
+  color-scheme: dark;
+}
+
+[data-theme="retro"] body {
+  background-image: repeating-linear-gradient(
+    0deg, transparent 0, transparent 3px, rgb(0 0 0 / 12%) 3px, rgb(0 0 0 / 12%) 4px
+  );
+  font-family: var(--retro-font);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+[data-theme="retro"] :is(p, span, a, li, label, legend, button, input, textarea, select, option, .tiptap) {
+  font-family: var(--retro-font);
+}
+
+[data-theme="retro"] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--retro-title-font);
+  color: var(--retro-gold);
+  line-height: 1.65;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+  text-shadow: 2px 2px #090711;
+}
+
+[data-theme="retro"] h1 { font-size: 1.25rem; }
+[data-theme="retro"] h2 { font-size: 1.125rem; }
+[data-theme="retro"] :is(h3, h4, h5, h6) { font-size: .875rem; }
+[data-theme="retro"] .text-xs { font-size: .875rem; }
+[data-theme="retro"] .text-sm { font-size: 1rem; }
+
+[data-theme="retro"] :is(.bg-white, .bg-gray-50, .bg-gray-100, .bg-blue-50, .bg-blue-100, .bg-blue-200, .bg-blue-300) {
+  background-color: var(--retro-panel);
+}
+[data-theme="retro"] :is(.bg-blue-400, .bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-blue-800, .bg-blue-900) {
+  background-color: var(--retro-selected);
+}
+[data-theme="retro"] :is(.text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900) {
+  color: var(--retro-accent);
+}
+[data-theme="retro"] :is(.text-white, .text-black, .text-gray-700, .text-gray-800, .text-gray-900) { color: var(--foreground); }
+[data-theme="retro"] :is(.text-gray-400, .text-gray-500, .text-gray-600) { color: #c3b4d6; }
+[data-theme="retro"] :is(.text-red-500, .text-red-600, .text-red-700) { color: #ff91a4; }
+[data-theme="retro"] :is(.border-blue-100, .border-blue-200, .border-blue-300, .border-blue-400, .border-blue-500, .border-blue-900) {
+  border-color: var(--retro-accent);
+}
+
+[data-theme="retro"] :is(.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl) { border-radius: 0; }
+[data-theme="retro"] :is(button, fieldset, .nav) {
+  border: 2px solid var(--retro-accent);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #090711;
+}
+[data-theme="retro"] button { line-height: 1.4; }
+[data-theme="retro"] button:not(:disabled):hover {
+  background-color: var(--retro-selected);
+  color: var(--retro-gold);
+  border-color: var(--retro-gold);
+}
+[data-theme="retro"] button:not(:disabled):active { box-shadow: 1px 1px 0 #090711; }
+[data-theme="retro"] :is(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid var(--retro-gold);
+  outline-offset: 3px;
+}
+[data-theme="retro"] :is(.hover\:bg-blue-100, .hover\:bg-blue-300, .hover\:bg-blue-500, .hover\:bg-blue-700, .hover\:bg-gray-100):hover {
+  background-color: var(--retro-selected);
+}
+[data-theme="retro"] .group:hover .group-hover\:bg-blue-300 { background-color: var(--retro-selected); }
+
+[data-theme="retro"] input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+[data-theme="retro"] textarea,
+[data-theme="retro"] select {
+  background-color: var(--retro-panel);
+  color: var(--foreground);
+  border-radius: 0;
+  caret-color: var(--retro-accent);
+}
+[data-theme="retro"] :is(input, textarea)::placeholder { color: #c3b4d6; opacity: 1; }
+[data-theme="retro"] :is(input[type="radio"], input[type="checkbox"]) { accent-color: var(--retro-accent); }
+[data-theme="retro"] ::selection { background-color: var(--retro-gold); color: #120f25; }
+[data-theme="retro"] * { scrollbar-color: var(--retro-accent) var(--retro-panel); }
+[data-theme="retro"] ::-webkit-scrollbar-track { background-color: var(--retro-panel); border-radius: 0; }
+[data-theme="retro"] ::-webkit-scrollbar-thumb { background-color: var(--retro-accent); border: 2px solid var(--retro-panel); border-radius: 0; }
+
+/* Editor controls also use fixed colors in their component stylesheet. */
+[data-theme="retro"] .task-editor :is(.editor-tool, .editor-select, .editor-dropdown-trigger),
+[data-theme="retro"] :is(.editor-dropdown-menu, .editor-dropdown-icon) {
+  background: var(--retro-panel);
+  color: var(--retro-accent);
+  border-color: var(--retro-accent);
+  border-radius: 0;
+}
+[data-theme="retro"] .task-editor :is(.editor-tool:hover, .editor-tool.is-active, .editor-dropdown-trigger:hover, .editor-dropdown-trigger.is-open),
+[data-theme="retro"] :is(.editor-dropdown-option.is-focused, .editor-dropdown-option.is-selected) {
+  background: var(--retro-selected);
+  color: var(--retro-gold);
+  border-color: var(--retro-gold);
+}
+[data-theme="retro"] :is(.editor-dropdown-option, .editor-dropdown-check) { color: var(--retro-accent); border-radius: 0; }
+[data-theme="retro"] .editor-dropdown-label { color: #c3b4d6; }
+[data-theme="retro"] .editor-dropdown-chevron { stroke: var(--retro-accent); }
+[data-theme="retro"] .task-editor-content .tiptap {
+  color: var(--foreground);
+  caret-color: var(--retro-accent);
+}
+[data-theme="retro"] .task-editor-content .tiptap:focus { box-shadow: inset 3px 0 var(--retro-accent); }
+[data-theme="retro"] .task-editor-content .tiptap a { color: var(--retro-accent); }
+[data-theme="retro"] .task-editor-content .tiptap :is(pre, code) { background: var(--retro-panel); color: var(--retro-gold); border-radius: 0; }
+[data-theme="retro"] .task-editor-content .tiptap blockquote { color: #c3b4d6; border-color: var(--retro-accent); }
+[data-theme="retro"] .task-editor-content .tiptap hr { border-color: var(--retro-accent); }
+[data-theme="retro"] .ProseMirror p.is-editor-empty:first-child::before { color: #c3b4d6; }
+
+/* Super Mario: bright platform-game colors and chunky pixel controls. */
+:root[data-theme="mario"] {
+  --background: #7381F7;
+  --foreground: #172b4d;
+  --mario-panel: #fff9e6;
+  --mario-green: #176b35;
+  --mario-red: #bb2424;
+  --mario-gold: #ffdc73;
+  --mario-outline: #653b20;
+  color-scheme: light;
+}
+
+[data-theme="mario"] body,
+[data-theme="mario"] :is(p, span, a, li, label, legend, button, input, textarea, select, option, .tiptap, h1, h2, h3, h4, h5, h6) {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+}
+
+[data-theme="mario"] body { font-size: 12px; line-height: 1.8; }
+
+/* Frame only the task workspace, leaving navigation outside the bezel. */
+[data-theme="mario"] .task-workspace {
+  --console-base-height: clamp(96px, 18dvh, 180px);
+  min-width: 0;
+  min-height: 0;
+  padding-bottom: var(--console-base-height);
+  background: #353664;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Blue pixel sky for the calendar, scoped to the Mario theme. */
+[data-theme="mario"] .calendar-workspace,
+[data-theme="mario"] .calendar-day-dialog {
+  background-color: #1648a0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' fill-opacity='.09' d='M0 0h32v32H0zM64 32h32v32H64zM32 96h32v32H32z'/%3E%3Cpath fill='%23072e80' fill-opacity='.14' d='M96 0h32v32H96zM0 64h32v32H0zM64 96h32v32H64z'/%3E%3Cpath fill='%2367efff' fill-opacity='.12' d='M32 32h32v32H32zM96 64h32v32H96z'/%3E%3Cpath fill='none' stroke='%23fff' stroke-opacity='.06' d='M0 0H128V128H0zM32 0V128M64 0V128M96 0V128M0 32H128M0 64H128M0 96H128'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #10285f 0%, #286ac1 28%, #68c7ef 46%, #42d0da 61%, #297bce 80%, #1747ac 100%);
+}
+
+[data-theme="mario"] .calendar-workspace > header,
+[data-theme="mario"] .calendar-day-dialog > header {
+  background: rgb(13 36 85 / 75%);
+  border-color: #7bd5ee;
+}
+
+[data-theme="mario"] .calendar-workspace > header :is(h1, p) { color: #fff; text-shadow: none; }
+[data-theme="mario"] .calendar-day-dialog {
+  border: 2px solid #87d9f1;
+  box-shadow: 6px 6px 0 rgb(10 33 78 / 45%);
+}
+[data-theme="mario"] .calendar-day-dialog > header :is(h2, p, button) {
+  color: #fff;
+  text-shadow: none;
+}
+[data-theme="mario"] .calendar-day-dialog > div > ul > li {
+  background: rgb(245 252 255 / 94%);
+}
+[data-theme="mario"] .calendar-day-dialog > div :is(.text-blue-900, .text-blue-800, .text-blue-700, .text-blue-500, .text-blue-400) {
+  color: #40537f;
+}
+[data-theme="mario"] .calendar-day-dialog > div > p { color: #fff; }
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button:not(:disabled):hover {
+  background-color: #b8ecf7;
+  color: #40537f;
+  border-color: #4ba8d2;
+}
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button:not(:disabled):hover :is(span, svg) {
+  color: #40537f;
+}
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) > header button:not(:disabled):hover {
+  background-color: #2877b6;
+  color: #fff;
+  border-color: #87d9f1;
+}
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) > header button:not(:disabled):hover :is(span, svg) {
+  color: #fff;
+}
+[data-theme="mario"] .calendar-workspace > div:nth-of-type(1) {
+  background: rgb(243 252 255 / 90%);
+  color: #40537f;
+}
+[data-theme="mario"] .calendar-workspace > div[role="status"] {
+  color: #fff;
+  text-shadow: 1px 1px #10285f;
+}
+[data-theme="mario"] .calendar-workspace [aria-label="Monthly task calendar"] {
+  border-color: #87d9f1;
+  box-shadow: 4px 4px 0 rgb(10 33 78 / 35%);
+}
+[data-theme="mario"] .calendar-workspace section {
+  background-color: rgb(245 252 255 / 88%);
+  border-color: #aad9ee;
+}
+[data-theme="mario"] .calendar-workspace section.bg-blue-50 { background-color: #c4f2fa; }
+[data-theme="mario"] .calendar-workspace section :is(.text-blue-900, .text-blue-400, .text-blue-500),
+[data-theme="mario"] .calendar-workspace [aria-label="Monthly task calendar"] > .grid:first-child > div {
+  color: #40537f;
+}
+
+/* DS-inspired arcade controls for the calendar and its day dialog. */
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button {
+  background-color: #164aab;
+  color: #b9eaff;
+  border: 2px solid #07172e;
+  border-radius: 0;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  box-shadow: inset 0 2px 0 #f0fcff, inset 2px 0 0 #8edaff, inset 0 -3px 0 #09255f, inset -2px 0 0 #0d347b;
+  font-weight: 700;
+  font-style: italic;
+  text-shadow: 1px 0 #07172e, -1px 0 #07172e, 0 1px #07172e, 0 -1px #07172e, 2px 2px #07172e;
+  transition: background-color 80ms, color 80ms, translate 80ms;
+}
+
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button :is(span, svg) {
+  color: inherit;
+}
+
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button[aria-current="date"],
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button[aria-pressed="true"],
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button:not(:disabled):is(:hover, :focus-visible) {
+  background-color: #42ceda;
+  color: #ffe36b;
+  border-color: #07172e;
+  box-shadow: inset 0 2px 0 #fff, inset 2px 0 0 #b8fcff, inset 0 -3px 0 #19778f, inset -2px 0 0 #2797ae;
+}
+
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button:not(:disabled):is(:hover, :focus-visible) :is(span, svg),
+[data-theme="mario"] .calendar-day-dialog > div button :is(span, svg) {
+  color: inherit;
+}
+
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px #ffe36b, inset 0 4px 0 #fff, inset 4px 0 0 #b8fcff, inset 0 -4px 0 #19778f;
+}
+
+[data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button:not(:disabled):active {
+  translate: 0 2px;
+  box-shadow: inset 0 2px 0 #19778f, inset 2px 0 0 #19778f, inset 0 -1px 0 #b8fcff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="mario"] :is(.calendar-workspace, .calendar-day-dialog) button { transition: none; }
+}
+
+.console-controls { display: none; }
+
+[data-theme="mario"] .console-controls {
+  display: flex;
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--console-base-height);
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: clamp(20px, 4dvh, 40px);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+[data-theme="mario"] .console-dpad {
+  position: relative;
+  width: clamp(90px, 15vw, 160px);
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 0 #20213f);
+  transform: perspective(400px);
+  transform-style: preserve-3d;
+  transition: transform 90ms ease-out, filter 90ms ease-out;
+}
+
+[data-theme="mario"] .console-dpad::before,
+[data-theme="mario"] .console-dpad::after {
+  content: "";
+  position: absolute;
+  background: #171824;
+  border: 3px solid #0c0d16;
+  box-shadow: inset 3px 3px 0 #444558, inset -3px -3px 0 #10111c;
+  border-radius: 5px;
+}
+
+[data-theme="mario"] .console-dpad::before { inset: 0 33%; }
+[data-theme="mario"] .console-dpad::after { inset: 33% 0; }
+
+/* Cover only the seams where the two raised arms meet. */
+[data-theme="mario"] .console-up::after {
+  content: "";
+  position: absolute;
+  top: calc(100% - 4px);
+  left: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 8px);
+  background: #171824;
+  pointer-events: none;
+}
+
+[data-theme="mario"] .console-system-buttons {
+  display: flex;
+  gap: clamp(12px, 2vw, 28px);
+  padding-top: clamp(48px, 8dvh, 80px);
+}
+
+[data-theme="mario"] .console-system-buttons button {
+  width: clamp(22px, 4vw, 48px);
+  height: 12px;
+  border-radius: 8px;
+  background: #191a2c;
+  box-shadow: inset 0 2px 0 #555676, 0 3px 0 #252644;
+  transform: rotate(-20deg);
+}
+
+[data-theme="mario"] .console-action-buttons {
+  display: flex;
+  gap: clamp(12px, 2vw, 28px);
+  padding-top: clamp(28px, 5dvh, 50px);
+  transform: rotate(-20deg);
+}
+
+[data-theme="mario"] .console-action-buttons button {
+  width: clamp(44px, 7vw, 78px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #bb2424;
+  border: 4px solid #20213f;
+  box-shadow: inset 3px 3px 0 #ec6262, inset -4px -5px 0 #7f1717, 0 5px 0 #252644;
+}
+
+[data-theme="mario"] .console-controls button {
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: filter 100ms, translate 100ms;
+  color: #fff9e6;
+}
+
+[data-theme="mario"] .console-controls .console-direction {
+  position: absolute;
+  z-index: 1;
+  width: 34%;
+  height: 34%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+[data-theme="mario"] .console-up { top: 0; left: 33%; }
+[data-theme="mario"] .console-left { top: 33%; left: 0; }
+[data-theme="mario"] .console-right { top: 33%; right: 0; }
+[data-theme="mario"] .console-down { bottom: 0; left: 33%; }
+
+[data-theme="mario"] .console-controls .console-system-buttons button {
+  border: 0;
+  border-radius: 8px;
+}
+
+[data-theme="mario"] .console-controls .console-action-buttons button {
+  border-radius: 50%;
+}
+
+[data-theme="mario"] .console-controls button:hover {
+  background-color: #191a2c;
+  color: #fff9e6;
+  filter: none;
+  border-color: #20213f;
+}
+
+[data-theme="mario"] .console-controls .console-direction:hover {
+  background-color: transparent;
+}
+
+[data-theme="mario"] .console-controls .console-action-buttons button:hover {
+  background-color: #bb2424;
+}
+
+[data-theme="mario"] .console-controls button:active {
+  translate: 0 4px;
+  filter: brightness(.85);
+  box-shadow: inset 2px 3px 0 rgb(0 0 0 / 35%);
+}
+
+/* The D-pad rocks as one piece around its central pivot. */
+[data-theme="mario"] .console-dpad:has(.console-up:active) {
+  transform: perspective(400px) rotateX(12deg) translateY(-1px);
+  filter: drop-shadow(0 2px 0 #20213f);
+}
+
+[data-theme="mario"] .console-dpad:has(.console-down:active) {
+  transform: perspective(400px) rotateX(-12deg) translateY(1px);
+  filter: drop-shadow(0 2px 0 #20213f);
+}
+
+[data-theme="mario"] .console-dpad:has(.console-left:active) {
+  transform: perspective(400px) rotateY(-12deg) translateX(-1px);
+  filter: drop-shadow(2px 2px 0 #20213f);
+}
+
+[data-theme="mario"] .console-dpad:has(.console-right:active) {
+  transform: perspective(400px) rotateY(12deg) translateX(1px);
+  filter: drop-shadow(-2px 2px 0 #20213f);
+}
+
+[data-theme="mario"] .console-controls .console-direction:active {
+  translate: none;
+  filter: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-theme="mario"] .console-controls button:focus-visible {
+  outline: 3px solid var(--mario-gold);
+  outline-offset: -5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="mario"] .console-controls button { transition: none; }
+  [data-theme="mario"] .console-dpad { transition: none; }
+  [data-theme="mario"] .console-dpad:has(.console-direction:active) { transform: none; }
+}
+
+[data-theme="mario"] .task-console-screen {
+  height: 100%;
+  min-height: 0;
+  border: clamp(5px, 1vw, 12px) solid #080808;
+  border-radius: 0;
+  background: var(--background);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'%3E%3Cdefs%3E%3Cg id='cloud' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 32h4v-8h8v-8h12v4h4V8h8V0h20v4h8v12h4v-4h16v4h8v12h8v4h8v16h-8v8H12v-4H4v-8H0z'/%3E%3Cpath fill='%23dceaff' d='M4 40h8v8h20v-4h24v4h24v-4h20v-8h8v12h-8v8H12v-4H4z'/%3E%3Cpath fill='%23edf5ff' d='M12 28h4v-4h8v4h4v8h-4v-4H12zM68 24h4v-4h12v4h4v8h-4v-4H68z'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23cloud' transform='translate(48 24) scale(.5)'/%3E%3Cuse href='%23cloud' transform='translate(266 42) scale(.625)'/%3E%3Cuse href='%23cloud' transform='translate(492 20) scale(.4)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center top;
+  box-shadow: inset 0 0 0 2px #303030, inset 0 0 12px 3px rgb(0 0 0 / 35%);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  [data-theme="mario"] .task-workspace {
+    flex: 1 1 0%;
+    width: 0;
+    height: 100dvh;
+  }
+
+  [data-theme="mario"] .task-console-screen > .Task-menu {
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  [data-theme="mario"] .task-workspace .task-menu-wrapper {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  [data-theme="mario"] .task-console-screen > .Task-menu + div {
+    flex: 1 1 0%;
+    width: 0;
+  }
+
+  [data-theme="mario"] .task-workspace .task-description {
+    height: 100%;
+  }
+}
+
+[data-theme="mario"] .text-xs { font-size: 9px; line-height: 1.7; }
+[data-theme="mario"] .text-sm { font-size: 10px; line-height: 1.8; }
+[data-theme="mario"] .text-base { font-size: 12px; line-height: 1.8; }
+[data-theme="mario"] .text-lg { font-size: 14px; line-height: 1.7; }
+[data-theme="mario"] .text-xl { font-size: 16px; line-height: 1.6; }
+[data-theme="mario"] .text-2xl { font-size: 18px; line-height: 1.6; }
+[data-theme="mario"] :is(h1, h2) { font-size: 18px; line-height: 1.6; }
+[data-theme="mario"] :is(h3, h4, h5, h6) { font-size: 14px; line-height: 1.7; }
+[data-theme="mario"] .nav h1 { font-size: 10px; white-space: nowrap; overflow-wrap: normal; }
+
+[data-theme="mario"] :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--mario-red);
+  overflow-wrap: anywhere;
+  text-shadow: 2px 2px #fff9e6;
+}
+[data-theme="mario"] :is(h1, h2, h5) { color: #40537f; }
+[data-theme="mario"] :is(.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl) { border-radius: 0; }
+[data-theme="mario"] :is(.bg-white, .bg-gray-50, .bg-gray-100, .bg-blue-50, .bg-blue-100, .bg-blue-200) { background-color: var(--mario-panel); }
+[data-theme="mario"] .bg-blue-300 { background-color: var(--mario-gold); }
+[data-theme="mario"] :is(.bg-blue-400, .bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-blue-800, .bg-blue-900) { background-color: var(--mario-green); }
+[data-theme="mario"] :is(.text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900) { color: #fff; }
+[data-theme="mario"] .Task-list h5 { color: #40537f; }
+[data-theme="mario"] .Task-list [data-category-count] {
+  background: transparent;
+  border: 0;
+  color: #40537f;
+}
+[data-theme="mario"] .task-section-title { color: #40537f; }
+[data-theme="mario"] [data-task-sort-trigger],
+[data-theme="mario"] [data-task-sort-trigger] svg { color: #40537f; }
+[data-theme="mario"] :is(.text-gray-400, .text-gray-500, .text-gray-600) { color: #40536d; }
+[data-theme="mario"] :is(.text-red-500, .text-red-600, .text-red-700) { color: #a41414; }
+[data-theme="mario"] .bg-blue-300.text-white { color: var(--foreground); }
+[data-theme="mario"] :is(.bg-blue-400, .bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-blue-800, .bg-blue-900).text-white { color: #fff; }
+[data-theme="mario"] :is(.border-blue-100, .border-blue-200, .border-blue-300, .border-blue-400, .border-blue-500, .border-blue-900) { border-color: var(--mario-outline); }
+
+[data-theme="mario"] :is(button, fieldset, .nav) {
+  border: 2px solid var(--mario-outline);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--mario-outline);
+}
+[data-theme="mario"] fieldset { background: var(--mario-panel); }
+[data-theme="mario"] .nav {
+  background-color: var(--mario-red);
+  border-color: #7f1717;
+}
+.mario-sidebar-mushroom { display: none; }
+[data-theme="mario"] .nav {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+[data-theme="mario"] .nav > .wrapper { margin-top: 0; margin-bottom: 0; }
+[data-theme="mario"] .nav .mario-sidebar-mushroom {
+  display: block;
+  flex-shrink: 0;
+  margin: auto auto 20px;
+  image-rendering: pixelated;
+}
+@media (max-width: 767px) {
+  [data-theme="mario"] .nav .mario-sidebar-mushroom { margin-top: 16px; }
+}
+[data-theme="mario"] .nav :is(a, p, .text-blue-900) { color: #fff9e6; }
+[data-theme="mario"] .nav img:not([data-sidebar-profile]) { filter: brightness(0) invert(1); }
+[data-theme="mario"] .nav svg { color: #fff; }
+[data-theme="mario"] .nav h1 { color: var(--mario-gold); text-shadow: 2px 2px #7f1717; }
+[data-theme="mario"] button:not(:disabled):hover {
+  background-color: #fff;
+  color: #40537f;
+}
+[data-theme="mario"] button:not(:disabled):active { box-shadow: 1px 1px 0 var(--mario-outline); }
+[data-theme="mario"] .mario-theme-button,
+[data-theme="mario"] .mario-theme-button:hover { background: var(--mario-red); color: #fff; }
+[data-theme="mario"] .mario-theme-button[aria-pressed="true"] { outline: 3px solid var(--mario-green); outline-offset: 3px; }
+[data-theme="mario"] :is(button, input, select, textarea, a):focus-visible { outline: 2px solid #40537f; outline-offset: 4px; }
+
+:is(button, input, select, textarea, a):focus:not(:focus-visible) {
+  outline: none;
+}
+[data-theme="mario"] :is(.hover\:bg-blue-100, .hover\:bg-blue-300, .hover\:bg-blue-500, .hover\:bg-blue-700, .hover\:bg-gray-100):hover { background-color: #fff; color: #40537f; }
+[data-theme="mario"] .group:hover .group-hover\:bg-blue-300 { background-color: #fff; color: #40537f; }
+[data-theme="mario"] input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+[data-theme="mario"] textarea,
+[data-theme="mario"] select { background-color: var(--mario-panel); color: var(--foreground); border-radius: 0; caret-color: var(--mario-red); }
+[data-theme="mario"] :is(input, textarea)::placeholder { color: #40536d; opacity: 1; }
+[data-theme="mario"] :is(input[type="radio"], input[type="checkbox"]) { accent-color: var(--mario-green); }
+[data-theme="mario"] ::selection { background: #fff; color: #40537f; }
+/* Include the page scrollbar as well as every nested scrolling surface. */
+:root[data-theme="mario"],
+[data-theme="mario"] * {
+  scrollbar-color: #40537f var(--mario-panel);
+  scrollbar-width: auto;
+}
+
+/* Allow pixel styling in browsers with WebKit scrollbar support. */
+@supports selector(::-webkit-scrollbar) {
+  :root[data-theme="mario"],
+  [data-theme="mario"] * { scrollbar-color: auto; }
+}
+
+:root[data-theme="mario"]::-webkit-scrollbar,
+[data-theme="mario"] *::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+:root[data-theme="mario"]::-webkit-scrollbar-track,
+[data-theme="mario"] *::-webkit-scrollbar-track {
+  background: var(--mario-panel);
+  border: 2px solid var(--mario-outline);
+  border-radius: 0;
+  box-shadow: inset 2px 2px 0 #e8c994;
+}
+
+:root[data-theme="mario"]::-webkit-scrollbar-thumb,
+[data-theme="mario"] *::-webkit-scrollbar-thumb {
+  background: #40537f;
+  border: 2px solid var(--mario-outline);
+  border-radius: 0;
+  box-shadow: inset 2px 2px 0 #7c91ba, inset -2px -2px 0 #253453;
+}
+
+:root[data-theme="mario"]::-webkit-scrollbar-thumb:hover,
+[data-theme="mario"] *::-webkit-scrollbar-thumb:hover {
+  background: #506797;
+}
+
+:root[data-theme="mario"]::-webkit-scrollbar-thumb:active,
+[data-theme="mario"] *::-webkit-scrollbar-thumb:active {
+  background: #304368;
+  box-shadow: inset 2px 2px 0 #687fa8, inset -2px -2px 0 #1c2943;
+}
+
+:root[data-theme="mario"]::-webkit-scrollbar-corner,
+[data-theme="mario"] *::-webkit-scrollbar-corner {
+  background: var(--mario-panel);
+  border: 2px solid var(--mario-outline);
+}
+
+[data-theme="mario"] .task-editor :is(.editor-tool, .editor-select, .editor-dropdown-trigger),
+[data-theme="mario"] :is(.editor-dropdown-menu, .editor-dropdown-icon) { background: var(--mario-panel); color: var(--foreground); border-color: var(--mario-outline); border-radius: 0; }
+[data-theme="mario"] .task-editor :is(.editor-tool:hover, .editor-tool.is-active, .editor-dropdown-trigger:hover, .editor-dropdown-trigger.is-open),
+[data-theme="mario"] :is(.editor-dropdown-option.is-focused, .editor-dropdown-option.is-selected) { background: #fff; color: #40537f; border-color: var(--mario-outline); }
+[data-theme="mario"] :is(.editor-dropdown-option, .editor-dropdown-check) { color: var(--foreground); border-radius: 0; }
+[data-theme="mario"] .editor-dropdown-label { color: #40536d; }
+[data-theme="mario"] .editor-dropdown-chevron { stroke: var(--mario-green); }
+[data-theme="mario"] .task-editor-content .tiptap { color: var(--foreground); caret-color: var(--mario-red); }
+[data-theme="mario"] .task-editor-content .tiptap:focus { box-shadow: inset 3px 0 var(--mario-green); }
+[data-theme="mario"] .task-editor-content .tiptap a { color: #fff; }
+[data-theme="mario"] .task-editor-content .tiptap :is(pre, code) { background: var(--mario-panel); color: var(--foreground); border-radius: 0; }
+[data-theme="mario"] .task-editor-content .tiptap blockquote { color: #40536d; border-color: var(--mario-green); }
+[data-theme="mario"] .task-editor-content .tiptap hr { border-color: var(--mario-outline); }
+[data-theme="mario"] .ProseMirror p.is-editor-empty:first-child::before { color: #40536d; }
+
+[data-theme="mario"] .inbox-surface,
+[data-theme="mario"] .inbox-surface :is(.text-white, .text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900, input, textarea, button) {
+  color: rgb(64, 83, 127);
+}
+
+[data-theme="mario"] .inbox-surface :is(input, textarea)::placeholder {
+  color: rgb(64, 83, 127);
+  opacity: 0.7;
+}
+
+[data-theme="mario"] .task-card-selected {
+  background: #fff;
+  color: #40537f;
+  border-radius: 0;
+  outline: 2px solid #40537f;
+  outline-offset: -2px;
+  box-shadow: inset 3px 3px 0 #fff, inset -3px -3px 0 #b8c5dc, 3px 3px 0 #40537f;
+}
+
+[data-theme="mario"] .task-card-selected :is(.text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900) {
+  color: #40537f;
+}
+
+[data-theme="mario"] .task-card-selected:active {
+  box-shadow: inset 3px 3px 0 #b8c5dc, inset -2px -2px 0 #fff;
+}
+
+/* Task creation options: compact sections with clear, consistent controls. */
+.task-completed-ribbon {
+  position: absolute;
+  top: 0;
+  left: -6px;
+  z-index: 1;
+  padding: 3px 9px;
+  background: #40537f;
+  color: #fff;
+  border: 1px solid #fff;
+  box-shadow: 1px 2px 0 #253453;
+  font-size: 9px;
+  line-height: 1.2;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transform: rotate(-18deg);
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.task-card-completed,
+[data-theme="mario"] .task-card-completed {
+  background-color: #fff;
+  color: #40537f;
+}
+[data-theme="mario"] .task-card-completed :is(.text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900) {
+  color: #40537f;
+}
+
+.task-delete-all,
+[data-theme="mario"] .task-delete-all { background-color: #bb2424; color: #fff; }
+.task-delete-all:not(:disabled):hover,
+[data-theme="mario"] .task-delete-all:not(:disabled):hover { background-color: #991d1d; color: #fff; }
+
+.task-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 12px 4px;
+  padding: 14px;
+  background: #fff;
+  color: #40537f;
+  border: 1px solid #d9e1ef;
+  border-radius: 12px;
+}
+.task-group-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  background: #edf2fa;
+  border-radius: 8px;
+}
+.task-group-emblem img { object-fit: contain; image-rendering: pixelated; }
+.task-group-caption { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #687b9e; }
+.task-group-name { margin-top: 4px; font-size: 28px; line-height: 1.1; overflow-wrap: anywhere; color: #40537f; }
+[data-theme="mario"] .task-group-heading {
+  border: 2px solid #40537f;
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 #40537f;
+}
+[data-theme="mario"] .task-group-emblem {
+  border: 1px solid #b8c5dc;
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 #d9e1ef;
+}
+
+.task-action-menu {
+  width: 240px;
+  max-width: calc(100vw - 16px);
+  background: #fff;
+  color: #40537f;
+  border: 1px solid #d9e1ef;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px #243a6026;
+}
+.task-action-menu-heading {
+  padding: 8px 12px 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e2e8f2;
+  color: #687b9e;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.task-action-menu .task-action-menu-item {
+  min-height: 42px;
+  color: #40537f;
+  background: transparent;
+  border-radius: 6px;
+  transition: background-color 120ms;
+}
+.task-action-menu .task-action-menu-item:hover,
+.task-action-menu .task-action-menu-item:focus-visible { background: #edf2fa; color: #40537f; }
+.task-action-menu-icon { width: 16px; height: 16px; flex-shrink: 0; color: #40537f; }
+[data-theme="mario"] .task-action-menu {
+  border: 2px solid #40537f;
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 #40537f;
+}
+[data-theme="mario"] .task-action-menu .task-action-menu-item {
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+[data-theme="mario"] .task-action-menu .task-action-menu-item:hover,
+[data-theme="mario"] .task-action-menu .task-action-menu-item:focus-visible {
+  background: #fff;
+  color: #40537f;
+  border-color: #b8c5dc;
+  box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 #d9e1ef;
+}
+
+.task-menu-selected,
+[data-theme="mario"] .task-menu-selected {
+  background-color: #fff;
+  color: #40537f;
+}
+.task-menu-item { cursor: pointer; transition: background-color 150ms, color 150ms; }
+.task-menu-item:hover,
+[data-theme="mario"] .task-menu-item:hover {
+  background-color: #fff;
+  color: #40537f;
+}
+.task-menu-item:hover :is(p, span, svg),
+[data-theme="mario"] .task-menu-item:hover :is(p, span, svg) {
+  color: #40537f;
+}
+[data-theme="mario"] .task-menu-selected :is(p, span, svg, .text-blue-900) {
+  color: #40537f;
+}
+
+.task-options-panel {
+  color: #40537f;
+  background: #fff;
+  border-color: #d9e1ef;
+  box-shadow: 0 16px 40px #243a6026;
+  scrollbar-width: thin;
+}
+.task-options-header {
+  margin: -1.25rem -1.25rem 0;
+  padding: 1rem 1.25rem;
+  background: #f0f4fb;
+  border-bottom: 1px solid #d9e1ef;
+}
+.task-options-header p { color: #687b9e; line-height: 1.5; }
+.task-options-panel > label,
+.task-options-panel legend { letter-spacing: 0.02em; }
+.task-options-panel .task-options-field {
+  background: #f7f9fd;
+  color: #40537f;
+  border: 1px solid #d9e1ef;
+  outline: none;
+  min-height: 42px;
+}
+.task-options-panel .task-options-field:focus-visible {
+  border-color: #40537f;
+  box-shadow: 0 0 0 3px #40537f18;
+}
+.task-options-panel fieldset {
+  padding: 0.75rem;
+  border: 1px solid #d9e1ef;
+  border-radius: 10px;
+  min-width: 0;
+}
+.task-options-panel legend { padding: 0 0.35rem; margin-bottom: 0; }
+.task-options-panel fieldset label { padding: 0.5rem; border-radius: 6px; }
+.task-options-panel fieldset label:has(input:checked) { background: #e9eef8; }
+.task-options-panel input[type="checkbox"] { accent-color: #40537f; width: 15px; height: 15px; flex-shrink: 0; }
+.task-options-panel input[type="file"] { line-height: 1.8; }
+.task-options-panel input[type="file"]::file-selector-button {
+  background: #e9eef8;
+  color: #40537f;
+  padding: 0.45rem 0.65rem;
+  cursor: pointer;
+}
+.task-options-panel .task-options-close { background: #e4ebf6; color: #40537f; }
+.task-options-panel .task-options-close:hover { background: #d6e0f0; }
+.task-options-footer { border-top: 1px solid #d9e1ef; padding-top: 1rem; }
+.task-options-panel .task-options-done { background: #40537f; color: #fff; }
+.task-options-panel .task-options-done:hover { background: #304368; }
+[data-theme="mario"] .task-options-panel {
+  color: #40537f;
+  border: 2px solid #40537f;
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 #40537f;
+}
+[data-theme="mario"] .task-options-panel :is(.text-blue-500, .text-blue-900) { color: #40537f; }
+[data-theme="mario"] .task-options-panel .task-options-field {
+  background: #f7f9fd;
+  color: #40537f;
+  border-color: #b8c5dc;
+  border-radius: 4px;
+}
+[data-theme="mario"] .task-options-panel :is(.task-options-close, .task-options-done) {
+  border: 2px solid #304368;
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 #ffffff40, inset -2px -2px 0 #17274340;
+}
+[data-theme="mario"] .task-options-panel input[type="checkbox"] { accent-color: #40537f; }

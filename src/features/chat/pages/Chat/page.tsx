@@ -8,7 +8,7 @@ export default function ChatPage() {
   const { user, authLoading, relations, selectedFriend, setSelectedFriend, loading, error, refreshFriends, friendsModalProps } = useChatState();
   if (authLoading) return <p role="status" className="p-6 text-blue-900">Loading chat...</p>;
   if (!user) return <p className="p-6 text-blue-900">Sign in to view your friends.</p>;
-  return <div className="flex h-dvh min-w-0 flex-1 overflow-hidden">
+  return <div className="inbox-surface flex h-dvh min-w-0 flex-1 overflow-hidden">
     <div className={`${selectedFriend ? 'hidden md:flex' : 'flex'} h-full w-full shrink-0 md:w-auto`}>
       <FriendsComponent key={user.id} relations={relations} selectedId={selectedFriend?.id} onSelect={setSelectedFriend}
         onAdd={() => friendsModalProps.setIsActive(true)} loading={loading} error={error} onRefresh={refreshFriends} userId={user.id} />

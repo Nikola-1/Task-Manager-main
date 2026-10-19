@@ -15,6 +15,32 @@ function Conversation({ userId, friend, onBack }: Props) {
   const scroll = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const nearBottom = useRef(true);
+  const audio = useRef<AudioContext | null>(null);
+  useEffect(() => () => {
+    if (audio.current) void audio.current.close().catch(() => {});
+    audio.current = null;
+  }, []);
+  const playSendPop = async () => {
+    try {
+      const context = audio.current ?? (audio.current = new AudioContext());
+      if (context.state === 'suspended') await context.resume();
+      if (context.state !== 'running') return;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const now = context.currentTime;
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(650, now);
+      oscillator.frequency.exponentialRampToValueAtTime(220, now + 0.09);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+      oscillator.start(now);
+      oscillator.stop(now + 0.12);
+    } catch { /* Audio availability must not interrupt sending. */ }
+  };
   useEffect(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(storageKey) ?? '[]');
@@ -41,13 +67,14 @@ function Conversation({ userId, friend, onBack }: Props) {
     try {
       localStorage.setItem(storageKey, JSON.stringify(next));
       nearBottom.current = true; setMessages(next); setDraft(''); setError(''); input.current?.focus();
+      void playSendPop();
     } catch { setError('Could not save this message on your device. Your draft is preserved.'); }
   };
   return <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-white text-blue-900">
     <header className="flex shrink-0 items-center gap-3 border-b border-blue-200 bg-blue-300 px-4 py-3">
       <button type="button" aria-label="Back to friends" onClick={onBack} className="rounded-lg p-2 hover:bg-blue-200 md:hidden"><FontAwesomeIcon icon={faArrowLeft} /></button>
       <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/70 font-bold">{friendName(friend).slice(0, 1).toUpperCase()}</span>
-      <div className="min-w-0"><h2 className="truncate font-bold">{friendName(friend)}</h2><p className="truncate text-xs text-blue-800">@{friend.Username}</p></div>
+      <div className="min-w-0"><h2 className="truncate font-bold text-[rgb(64,83,127)]">{friendName(friend)}</h2><p className="truncate text-xs text-blue-800">@{friend.Username}</p></div>
     </header>
     <p className="shrink-0 border-b border-blue-100 bg-blue-50 px-4 py-2 text-xs text-blue-700">Local chat preview: messages are saved on this device and are not delivered to your friend.</p>
     <div ref={scroll} onScroll={event => { const node = event.currentTarget; nearBottom.current = node.scrollHeight - node.scrollTop - node.clientHeight < 80; }}

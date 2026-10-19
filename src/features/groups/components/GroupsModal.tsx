@@ -85,11 +85,11 @@ export default function GroupsModal({ isActiveGroup,
         console.log(Mode)
     },[Mode]);
     return(
-        <div className={isActiveGroup == true ? "flex absolute w-8/12 translate-x-1/4  top-2/4 left-0 shadow-md rounded-md bg-white  bottom-2/4 m-auto h-2/4  " : " hidden"} >
-        <div className=" inset-0 flex items-center align-middle justify-center w-full">
-            <div className="flex  justify-between w-full h-full relative">
-        <div className="flex flex-col p-3 relative  xl:w-full ">
-            <h3>Add list</h3>
+        <div className={isActiveGroup == true ? "fixed inset-0 z-50 flex items-center justify-center bg-blue-950/40 p-4 backdrop-blur-sm" : " hidden"} >
+        <div className="flex w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex min-h-72 w-full justify-between relative">
+        <div className="flex min-w-0 flex-1 flex-col gap-5 p-6 relative">
+            <h3 className="text-lg font-semibold text-blue-950">{Mode === "Update" ? "Edit group" : "Create group"}</h3>
             <div className="flex flex-col w-full">
                 <div className="flex w-full">
                 {ActiveSticker != null ? <Image onClick={()=> toggleModalCalendar ? setToggleModalCalendar(false) : setToggleModalCalendar(true)} src={"/img/"+ActiveSticker?.sticker_path+".png"} width={30} height={30}  className="cursor-pointer hover:bg-blue-900 hover:border-blue-900 text-white bg-blue-300 border-blue-300 border-2  p-1 rounded-l-md" alt="Sticker_image" />  : <FontAwesomeIcon icon={faSmile} onClick={()=> toggleModalCalendar ? setToggleModalCalendar(false) : setToggleModalCalendar(true)} className="cursor-pointer hover:bg-blue-900 hover:border-blue-900 text-white bg-blue-300 border-blue-300 border-2  p-1 rounded-l-md" width={20} height={20}></FontAwesomeIcon> }
@@ -97,7 +97,7 @@ export default function GroupsModal({ isActiveGroup,
   onChange={(e) => setNameGroup(e.currentTarget.value)}
   value={nameGroup ?? ""}
   type="text"
-  className="border-blue-300 border-2 rounded-r-md border-l-0 outline-none indent-1 w-full"
+  className="min-w-0 w-full rounded-r-lg border border-blue-200 px-3 py-3 text-sm text-blue-950 outline-none focus:border-blue-400"
 />
                 </div>
                 <div className="relative">
@@ -141,8 +141,8 @@ export default function GroupsModal({ isActiveGroup,
                 {Mode == "Update" ? <p>Update</p> : <p className="">Add</p>}
             </div>
         </div>
-            <div className="w-2/4 h-full rounded-r-md">
-                    <Image src={"/img/" + picture?.picture_path + ".jpg"} alt={""} width={840} height={840}  className="w-full h-full rounded-md" />
+            <div className="hidden w-2/5 shrink-0 sm:block">
+                    <Image src={"/img/" + picture?.picture_path + ".jpg"} alt={""} width={840} height={840}  className="h-full w-full object-cover" />
             </div>
           
         </div>

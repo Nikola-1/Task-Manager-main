@@ -11,12 +11,13 @@ interface DropdownOption {
 interface EditorDropdownProps {
   label: string;
   icon: string;
+  iconStyle?: CSSProperties;
   value: string;
   options: DropdownOption[];
   onChange: (value: string) => void;
 }
 
-export default function EditorDropdown({ label, icon, value, options, onChange }: EditorDropdownProps) {
+export default function EditorDropdown({ label, icon, iconStyle, value, options, onChange }: EditorDropdownProps) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const root = useRef<HTMLDivElement>(null);
@@ -56,7 +57,7 @@ export default function EditorDropdown({ label, icon, value, options, onChange }
       onKeyDown={event => {
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); show(); }
       }}>
-      <span aria-hidden="true" className="editor-dropdown-icon">{icon}</span>
+      <span aria-hidden="true" className="editor-dropdown-icon" style={iconStyle}>{icon}</span>
       <span className="editor-dropdown-value">{selected.label}</span>
       <svg aria-hidden="true" viewBox="0 0 16 16" className="editor-dropdown-chevron"><path d="m4 6 4 4 4-4" /></svg>
     </button>

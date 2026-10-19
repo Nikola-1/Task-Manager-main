@@ -3,7 +3,7 @@ import { Micro_5 } from 'next/font/google';
 import Image from 'next/image';
 import next from "../../../../../public/img/next.png";
 import search from "../../../../../public/img/search.png";
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import "@/features/auth/components/Login/style.css";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import "@/features/auth/components/Login/Login.css";
@@ -11,7 +11,6 @@ import 'swiper/css';
 import { useRouter } from 'next/navigation';
 import { Login, Register } from '@/features/auth/data/auth.repository';
 import StarField from "@/features/auth/components/Login/StarField";
-import { AnimatePresence, motion } from "framer-motion";
 const Micro = Micro_5({weight:"400",subsets:['latin'],});
  interface LoginProps{
     setLoginProps:React.Dispatch<React.SetStateAction<boolean>>
@@ -23,8 +22,7 @@ export default function  LoginComponent({setLoginProps,setUserProps}:LoginProps)
     const [Surname,setSurname] = useState<string | null>("");
      const [Email,setEmail] = useState<string | null>("");
       const [Password,setPassword] = useState<string | null>("");
-      const [RepeatedPassword,setRepeatedPassword] = useState<string | null>("");
-         const [showIntro, setShowIntro] = useState(true);
+      const [,setRepeatedPassword] = useState<string | null>("");
       const [singUp,setSignUp] = useState<boolean>(false);
       const {setUser,setLoggedIn} = useAuth();
       const router = useRouter();
@@ -45,13 +43,6 @@ export default function  LoginComponent({setLoginProps,setUserProps}:LoginProps)
   router.push("/pages/Task");
 };
 const titleReference = useRef<HTMLHeadingElement | null>(null);
-useEffect(() => {
-  const timer = window.setTimeout(() => {
-    setShowIntro(false);
-  }, 12000);
-
-  return () => window.clearTimeout(timer);
-}, []);
 
   return (
     <div className='flex gri justify-between items-center w-full h-dvh'>
@@ -67,7 +58,7 @@ useEffect(() => {
       </div>
       <div className='w-1/2 flex justify-center'>
       <div className='flex justify-center  align-middle items-center flex-col w-5/6 '>
-        <h1 ref={titleReference} className={"text-center  mt-3 text-7xl md:text-9xl text-blue-900  "+ Micro.className}>HelpTask</h1>
+        <h1 ref={titleReference} data-helptask-login-logo className={"text-center  mt-3 text-7xl md:text-9xl text-blue-900  "+ Micro.className}>HelpTask</h1>
         
         {singUp == true ? 
           <div className='grid grid-cols-2 gap-4 my-9 w-5/6'>
@@ -100,19 +91,7 @@ useEffect(() => {
         </div>
         </div>
         </div>
-        <AnimatePresence>
-  {showIntro && (
-    <motion.div
-      className="fixed inset-0 z-50"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
-    >
-      <StarField titleLocation={titleReference} />
-    </motion.div>
-  )}
-</AnimatePresence>
+        <StarField titleLocation={titleReference} />
     </div>
   )
 }

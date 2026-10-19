@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Group } from 'three/src/objects/Group.js'
+import { useState } from 'react'
+
 import { GroupType } from "@/types/GroupType";
 
 export default function useGroupState(){
@@ -15,14 +15,9 @@ export default function useGroupState(){
         const [toggleModalGroups, setToggleModalGroups] = useState(false);
         const [toggleModalUsers, setToggleModalUsers] = useState(false);
   const [editListItem, setEditListItem] = useState<object | null>(null);
-        const [filter, setFilter] = useState("Today");
-  const [filterImage, setFilterImage] = useState("");
-        useEffect(()=>{
-                console.log(Group);
-        },[Group])
-        useEffect(()=>{
-                console.log(EditOn);
-        },[EditOn])
+        const [, setFilter] = useState("Today");
+  const [, setFilterImage] = useState("");
+
         const useGroup ={
                 EditOn:EditOn,
                 setEditOn:setEditOn,
@@ -34,15 +29,16 @@ export default function useGroupState(){
                 DeleteOn:DeleteOn
         }
 const triggerRenderGroups = () => {
-    console.log("renderovano");
+
     setRefreshFlagGroups(prev => !prev);
-    console.log(refreshFlagGroups)
+
   };
         const groupModalProps = {
     setTaskFilter: setFilter,
     setFilterImage:setFilterImage,
     nameGroup:nameGroup,
     refreshFlagGroups:triggerRenderGroups,
+    refreshVersion:refreshFlagGroups,
     setNameGroup: setNameGroup,
     Mode: modeModal,
     setMode:setModeModal,

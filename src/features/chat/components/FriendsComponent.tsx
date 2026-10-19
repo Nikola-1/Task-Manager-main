@@ -5,6 +5,7 @@ import { faMagnifyingGlass, faMessage, faPlus } from '@fortawesome/free-solid-sv
 import type { ChatFriend, Friendship } from '@/features/chat/data/chat.types';
 import { friendName } from '@/features/chat/data/chat.types';
 import { acceptFriend } from '@/features/chat/data/chat.repository';
+import useHoverPop from '@/features/chat/hooks/useHoverPop';
 
 interface Props {
   relations: Friendship[];
@@ -17,6 +18,7 @@ interface Props {
   userId: number;
 }
 export default function FriendsComponent({ relations, selectedId, onSelect, onAdd, loading, error, onRefresh, userId }: Props) {
+  const playHoverPop = useHoverPop();
   const [search, setSearch] = useState('');
   const [accepting, setAccepting] = useState<number | null>(null);
   const [requestError, setRequestError] = useState('');
@@ -42,16 +44,16 @@ export default function FriendsComponent({ relations, selectedId, onSelect, onAd
       {loading && <p role="status" className="p-3 text-sm text-blue-500">Loading friends...</p>}
       {error && <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}<button type="button" onClick={() => void onRefresh()} className="mt-2 block font-semibold underline">Try again</button></div>}
       {!loading && !error && visible.length === 0 && <p className="p-3 text-sm text-blue-500">{search ? 'No matching friends.' : 'No friends yet. Find someone to connect with.'}</p>}
-      <ul className="space-y-1">{visible.map(({ friend }) => <li key={friend.id}><button type="button" onClick={() => onSelect(friend)} aria-pressed={selectedId === friend.id}
+      <ul className="space-y-1">{visible.map(({ friend }) => <li key={friend.id}><button type="button" onClick={() => { playHoverPop(); onSelect(friend); }} aria-pressed={selectedId === friend.id}
         className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${selectedId === friend.id ? 'bg-blue-200' : 'hover:bg-blue-50'}`}>
         <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold">{friendName(friend).slice(0, 1).toUpperCase()}</span>
-        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{friendName(friend)}</span><span className="block truncate text-xs text-blue-500">@{friend.Username}</span></span>
+        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-[rgb(64,83,127)]">{friendName(friend)}</span><span className="block truncate text-xs text-blue-500">@{friend.Username}</span></span>
         <FontAwesomeIcon icon={faMessage} className="text-blue-400" />
       </button></li>)}</ul>
       {pending.length > 0 && <section className="mt-5 border-t border-blue-100 pt-4"><h2 className="mb-2 px-2 text-xs font-semibold uppercase text-blue-500">Friend requests</h2>
         {requestError && <p role="alert" className="p-2 text-xs text-red-600">{requestError}</p>}
         {pending.map(({ friend, incoming }) => <div key={friend.id} className="mb-2 rounded-lg bg-blue-50 p-3">
-          <p className="truncate text-sm font-semibold">{friendName(friend)}</p><p className="text-xs text-blue-500">{incoming ? 'Wants to connect with you' : 'Request sent'}</p>
+          <p className="truncate text-sm font-semibold text-[rgb(64,83,127)]">{friendName(friend)}</p><p className="text-xs text-blue-500">{incoming ? 'Wants to connect with you' : 'Request sent'}</p>
           {incoming && <button type="button" disabled={accepting !== null} onClick={() => void accept(friend.id)} className="mt-2 rounded-md bg-blue-300 px-3 py-1 text-xs font-semibold disabled:opacity-50">{accepting === friend.id ? 'Accepting...' : 'Accept request'}</button>}
         </div>)}
       </section>}

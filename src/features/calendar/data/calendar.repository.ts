@@ -36,3 +36,10 @@ export async function getCalendarTasks(userId: number, groupId: number | null, f
     category: task.category ? { name: task.category.name ?? 'Category', stickerPath: task.category.Stickers?.sticker_path ?? null } : null,
   }));
 }
+
+export async function setCalendarTaskCompleted(id: number, completed: boolean): Promise<void> {
+  const { data, error } = await supabase.from('tasks').update({ Completed: completed }).eq('id', id)
+    .not('Deleted', 'is', true).select('id').single();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error('Task could not be updated.');
+}

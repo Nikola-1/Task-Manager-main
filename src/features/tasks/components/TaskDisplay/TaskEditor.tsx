@@ -7,6 +7,9 @@ import type { TaskType } from '@/types/TaskType';
 import { saveContent } from '@/features/tasks/data/tasks.repository';
 import EditorDropdown from '@/features/tasks/components/TaskDisplay/EditorDropdown';
 import Image from 'next/image';
+import { Micro_5 } from 'next/font/google';
+
+const micro = Micro_5({ weight: '400', subsets: ['latin'] });
 
 interface TaskEditorProps {
   editor: Editor;
@@ -124,7 +127,7 @@ export default function TaskEditor({ editor, task, refreshTasks }: TaskEditorPro
           <span className="break-words">{task.category.name || 'Category'}</span>
         </span>}
       </div>
-      <h2 className="break-words text-lg font-bold" style={{ color: titleColor }}>{task.name}</h2>
+      <h2 className={`${micro.className} break-words text-2xl`} style={{ color: '#40537f' }}>{task.name}</h2>
     </header>
     <div role="group" aria-label="Text formatting" className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-blue-200 bg-blue-50 px-3 py-2.5">
       <EditorDropdown label="Text style" icon="T" value={String(state.heading)} options={[
@@ -137,7 +140,7 @@ export default function TaskEditor({ editor, task, refreshTasks }: TaskEditorPro
         if (level === 0) editor.chain().focus().setParagraph().run();
         else editor.chain().focus().setHeading({ level: level as 1 | 2 | 3 }).run();
       }} />
-      <EditorDropdown label="Font family" icon="Aa" value={state.font} options={[
+      <EditorDropdown label="Font family" icon="Aa" iconStyle={{ fontFamily: state.font || 'inherit' }} value={state.font} options={[
         { value: '', label: 'Default font' },
         ...fonts.map(font => ({ value: font, label: font, style: { fontFamily: font } })),
       ]} onChange={value => {

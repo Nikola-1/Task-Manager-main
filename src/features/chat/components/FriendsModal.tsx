@@ -51,7 +51,7 @@ function FindFriends({ setIsActive, relations, onUpdate }: Omit<Props, 'isActive
     finally { pending.current = false; setSending(null); }
   };
   return createPortal(<div className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-950/40 p-4 backdrop-blur-sm" onClick={event => { if (event.target === event.currentTarget) close(); }}>
-    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="flex max-h-[85dvh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-2xl"
+    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="inbox-surface flex max-h-[85dvh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-2xl"
       onKeyDown={event => {
         if (event.key === 'Escape') { event.stopPropagation(); close(); }
         if (event.key === 'Tab') {

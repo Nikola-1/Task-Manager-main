@@ -121,7 +121,7 @@ export async function DeleteData(id:number){
         if (!error) {
           console.log(error)
         } else {
-          console.error("Delete failed:", error.message);
+          throw new Error(error.message);
         }
         
           }

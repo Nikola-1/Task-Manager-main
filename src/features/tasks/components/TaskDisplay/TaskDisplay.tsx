@@ -1,13 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
  'use client'
  import "@/features/tasks/components/TaskDisplay/style.css";
+import { flushSync } from 'react-dom';
+import { vacuumTasks } from '@/features/tasks/components/TaskDisplay/vacuumTasks';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faCheck, faCheckSquare, faClose, faColumns, faDisplay, faEarListen, faEllipsis, faLeftLong, faListSquares, faNoteSticky, faSadCry, faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Placeholder from '@tiptap/extension-placeholder'
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
@@ -15,17 +17,22 @@ import TaskCategoryImage from "@/features/tasks/components/TaskDisplay/TaskCateg
 import  {TextStyle,FontFamily}  from '@tiptap/extension-text-style'
 import Task from "@/features/tasks/components/Task/Task";
 import TaskEditor from "@/features/tasks/components/TaskDisplay/TaskEditor";
+import TaskComposer from '@/features/tasks/components/TaskDisplay/TaskComposer';
 
+import { sortTasks } from '@/features/tasks/data/task-sort';
+import { useTaskPriorities } from '@/features/tasks/hooks/useTaskPriority';
+import TaskSortDropdown from '@/features/tasks/components/TaskDisplay/TaskSortDropdown';
+import type { TaskSort } from '@/features/tasks/data/task-sort';
 import { TaskType } from "@/types/TaskType";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import useOptionsMenu from "@/components/ui/hooks/useOptionsMenu";
 import { OptionsMenu } from "@/components/ui/OptionsMenu/OptionsMenu";
 import { useScope } from "@/features/groups/context/ScopeContext";
-import { AddTask, deleteDeleted } from '@/features/tasks/data/tasks.repository';
+import { deleteDeleted } from '@/features/tasks/data/tasks.repository';
 import { setUserAfterDisplay } from '@/features/auth/data/auth.repository';
 import { group } from "console";
 import { UserType } from "@/types/UserType";
-import { motion,AnimatePresence } from "framer-motion";
+import { motion,AnimatePresence, useReducedMotion } from "framer-motion";
 
 
 interface TaskDisplayProps {
@@ -71,14 +78,20 @@ export default function TaskDisplay({
   
      
    
+    const reducedMotion = useReducedMotion();
     const [activeTask,setActiveTask] = useState<string | undefined>("");
+    const [dateSort, setDateSort] = useState<TaskSort>('default');
     const [deletingTasks, setDeletingTasks] = useState(false);
     const [deleteError, setDeleteError] = useState("");
     const deletingTasksRef = useRef(false);
-    const [X,setX] = useState<number | undefined>();
-    const [Y,setY] = useState<number | undefined>();
-      const [inputValue,setInputValue] = useState("Add task");
+    const taskListRef = useRef<HTMLDivElement>(null);
+    const binRef = useRef<HTMLDivElement>(null);
+    const [X,setX] = useState(0);
+    const [Y,setY] = useState(0);
+
     const {user,setUser} =useAuth();
+    const priorities = useTaskPriorities(user?.id, tasksArray);
+    const sortedTasks = useMemo(() => sortTasks(tasksArray, dateSort, priorities), [tasksArray, dateSort, priorities]);
     const {groupId} = useScope();
      const editor = useEditor({
     extensions: [
@@ -99,12 +112,14 @@ export default function TaskDisplay({
     const deleteDeletedFunc = async() =>{
       if (deletingTasksRef.current || !tasksArray.length) return;
       deletingTasksRef.current = true;
-      setDeletingTasks(true);
+      flushSync(() => setDeletingTasks(true));
       setDeleteError("");
       try {
-        await deleteDeleted(tasksArray);
-        setSelectedTaskProp(null);
-        await refreshTasks();
+        await vacuumTasks(taskListRef.current, binRef.current, async () => {
+          await deleteDeleted(tasksArray);
+          setSelectedTaskProp(null);
+          await refreshTasks();
+        });
       } catch {
         setDeleteError("Could not delete tasks. Please try again.");
       } finally {
@@ -116,10 +131,6 @@ export default function TaskDisplay({
    
     
   
-const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
-        setInputValue(e.target.value);
-}
-
  const handleOpenModal = ()=>{
         setToggleModal(true);
        
@@ -133,17 +144,6 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
             console.log(error);
         }
     }
-  const AddTaskFunc = async (
-  name: string,
-  fullDate: Date,
-  categoryId?: number,
-  tagId?: number
-) => {
-  await AddTask(name,fullDate,groupId,user,categoryId,tagId);
-  refreshTasks();
-};
-
-    
        const { open, toggleMenu,setOpen, options,id,setId } = useOptionsMenu("task", {
            
             complete:{
@@ -185,57 +185,45 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
               <div className="flex items-center">
                 <FontAwesomeIcon icon={faLeftLong} onClick={()=>setSideMenuVisible(!SideMenuVisible)} className={`transition-all cursor-pointer ${SideMenuVisible ? "rotate-180 " : "rotate-0 transition-all"}`}/>
                    
-                    <motion.h3 key={filter} initial={{scale:0}} animate={{scale:1}} className="pr-3 pl-3 flex align-middle items-center ">{filter}{ filterImage == null || filterImage == "" ? <p></p> : <img width={20} height={20} className="mx-2" src={"/img/"+filterImage+".png"}/>}</motion.h3>
+                    <motion.h3 key={filter} initial={{scale:0}} animate={{scale:1}} className="task-section-title pr-3 pl-3 flex align-middle items-center ">{filter}{ filterImage == null || filterImage == "" ? <p></p> : <img width={20} height={20} className="mx-2" src={"/img/"+filterImage+".png"}/>}</motion.h3>
                     </div>
                     <FontAwesomeIcon className="cursor-pointer text-2xl" icon={faEllipsis} onClick={(e)=>{toggleMenu(); setX(e.clientX); setY(e.clientY);}}></FontAwesomeIcon>
                     </div>
-                    <div className="relative flex justify-between text-white items-center m-3 p-1 bg-blue-300  rounded-md z-0 group">
-                       
-         
-                        <input className="absolute z-20 bg-transparent outline-none group-focus-within:outline-none placeholder-white" onChange={handleChange} onKeyDown={(e)=>{
-                            if(e.key === "Enter" && inputValue != "" && inputValue != " "){
-                                AddTaskFunc(inputValue,fullDate,categoryId,tagId);
-                                
-                            }
-                       
-                        }} placeholder={inputValue}></input>
-                       
-                      
-                        <div className="flex  items-center z-10 group-focus-within:invisible">   
-                            <FontAwesomeIcon className={ inputValue == "" || inputValue == " " ? "" : "hidden"} icon={faPlus} height={15} width={15} ></FontAwesomeIcon>
-                            <p  className="m-1">{inputValue == "" || inputValue == " " ? "Add task" : ""}</p>
-                        </div>
-                             <div className="flex  items-center">
-                                <p>{fullDate?.toLocaleDateString("sr-RS") ?? ""}</p>
-                                <FontAwesomeIcon className="m-1" onClick={handleOpenModal} icon={faCalendar} width={15} height={15}>
-                                    </FontAwesomeIcon><FontAwesomeIcon icon={faArrowDown} width={15} height={15}></FontAwesomeIcon>
-                        </div>
-                        
+
+                    <TaskComposer key={`${user?.id}-${groupId}`} userId={user?.id} groupId={groupId} date={fullDate} categoryId={categoryId} tagId={tagId} onChooseDate={handleOpenModal} refreshTasks={refreshTasks} />
+<div className="mx-3 mb-1 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs text-blue-800">
+                      <span className="flex items-center gap-2 font-medium"><FontAwesomeIcon icon={faCalendar} className="text-blue-400" />Sort tasks</span>
+                      <TaskSortDropdown value={dateSort} onChange={setDateSort} />
                     </div>
-                    
+
                     {filter === "Deleted" && <div className="mx-auto my-3 w-9/12">
                       <button type="button" disabled={deletingTasks || !tasksArray.length} onClick={() => void deleteDeletedFunc()}
-                        className="w-full rounded-md bg-blue-400 py-2 font-bold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
-                        {deletingTasks ? "Deleting..." : "Delete"}
+                        className="task-delete-all w-full rounded-md py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                        {deletingTasks ? "Deleting..." : "Delete All"}
                       </button>
                       {deleteError && <p role="alert" className="mt-2 text-sm text-red-700">{deleteError}</p>}
                     </div>}
                     
 
-                 <div className={user?.display == true  ? "grid grid-cols-2 overflow-y-scroll" : " overflow-y-scroll h-96"}>
+                 <div ref={taskListRef} inert={deletingTasks} aria-busy={deletingTasks} className={user?.display == true ? "grid min-h-0 min-w-0 flex-1 grid-cols-2 content-start overflow-x-hidden overflow-y-auto" : "min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto"}>
                     <AnimatePresence>
                     {
                       
                         tasksArray.length != 0 ?
-                    tasksArray?.map((item,index)=>(
+                    sortedTasks.map((item)=>(
                       
-                      <motion.div layout  key={item.id} 
-                      initial={{opacity:0,scale:0} } 
-                      animate={{opacity:1,scale:1}}
-                       transition={{
-                        duration:0.3,delay:index*0.15,layout:{duration:0.15}}}
-                       
-                       exit={{ opacity: 0,scale:0, transition:{duration:0.15} }}
+                      <motion.div layout data-task-card key={item.id}
+                      initial={reducedMotion ? false : { opacity: 0, scale: 0.65, y: 10 }}
+                      animate={reducedMotion ? { opacity: 1, scale: 1, y: 0 } : { opacity: 1, scale: selectedTaskProp?.id === item.id ? 1.025 : 1, y: selectedTaskProp?.id === item.id ? -2 : 0 }}
+                      transition={{
+                        duration: reducedMotion ? 0 : 0.32,
+                        ease: "easeOut",
+                        scale: { type: "spring", stiffness: 420, damping: 22 },
+                        y: { type: "spring", stiffness: 420, damping: 26 },
+                        layout: { duration: reducedMotion ? 0 : 0.15 },
+                      }}
+                      style={{ transformOrigin: "center center", position: "relative", zIndex: selectedTaskProp?.id === item.id ? 2 : 0 }}
+                      exit={{ opacity: 0, scale: reducedMotion ? 1 : 0, transition: { duration: reducedMotion ? 0 : 0.15 } }}
                        > 
                  <Task 
  
@@ -251,6 +239,29 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
                 )): <div className="flex justify-center align-middle items-center m-auto"><p className="flex justify-center align-middle items-center font-bold text-blue-900 ">No Tasks </p></div>
                 }</AnimatePresence>
                  </div>
+                 <AnimatePresence>
+                 {deletingTasks && <motion.div key="deletion-bin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ height: 0, opacity: 0, paddingTop: 0, paddingBottom: 0, transition: { delay: reducedMotion ? 0 : 0.6, duration: reducedMotion ? 0 : 0.15 } }} transition={{ duration: reducedMotion ? 0 : 0.15 }} className="flex shrink-0 flex-col items-center gap-1 overflow-hidden px-4 py-3" role="status">
+                   <motion.div ref={binRef} className="relative flex h-20 w-20 items-center justify-center" exit={reducedMotion ? { opacity: 0 } : { x: [0, 28, 80, 160, 280, 700], y: [0, -18, 0, -24, 0, -12], rotate: [0, 8, -5, 10, -4, 12], opacity: [1, 1, 1, 1, 1, 0], transition: { duration: 0.6, ease: "linear", times: [0, 0.2, 0.35, 0.55, 0.7, 1] } }}>
+                     <svg aria-hidden="true" viewBox="0 0 80 80" shapeRendering="crispEdges" className="relative h-20 w-20 overflow-visible">
+                       <path d="M12 28h56v44H12z" fill="#713a18" />
+                       <path d="M16 28h48v40H16z" fill="#e99a28" />
+                       <path d="M16 28h48v4H16zM16 32h4v32h-4z" fill="#ffe394" />
+                       <path d="M20 64h44v4H20zM60 32h4v32h-4z" fill="#b65b1d" />
+                       <path d="M20 36h4v4h-4zM56 36h4v4h-4zM20 56h4v4h-4zM56 56h4v4h-4z" fill="#713a18" />
+                       <path d="M32 38h16v4h4v8h-8v6h-8v-10h8v-4h-8v4h-8v-4h4zM36 60h8v4h-8z" fill="#a7521c" />
+                       <path d="M30 36h16v4h4v8h-8v6h-8V44h8v-4h-8v4h-8v-4h4zM34 58h8v4h-8z" fill="#fff1c4" />
+                       <motion.g initial={{ rotate: 0, y: 0 }} animate={{ rotate: reducedMotion ? 0 : -18, y: reducedMotion ? 0 : -7 }} style={{ transformOrigin: "18px 25px" }} transition={{ duration: 0.2 }}>
+                         <path d="M8 20h64v12H8z" fill="#713a18" />
+                         <path d="M12 20h56v8H12z" fill="#e99a28" />
+                         <path d="M12 20h56v4H12z" fill="#ffe394" />
+                         <path d="M28 12h24v8H28z" fill="#713a18" />
+                         <path d="M32 16h16v4H32z" fill="#ffe394" />
+                       </motion.g>
+                     </svg>
+                   </motion.div>
+                   <motion.p exit={{ opacity: 0, transition: { duration: 0.1 } }} className="text-xs font-semibold text-blue-700">Clearing deleted tasks...</motion.p>
+                 </motion.div>}
+                 </AnimatePresence>
             </div> 
                 
          {selectedTaskProp != null ? <div className="task-description flex h-dvh min-h-0 min-w-0 w-full flex-col md:w-2/4">
@@ -261,4 +272,4 @@ const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
         </div>
         
     )
-} 
+}

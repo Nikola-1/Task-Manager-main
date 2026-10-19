@@ -7,14 +7,31 @@ import { faCalendarDays, faChevronLeft, faChevronRight, faCheck, faNoteSticky, f
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { useScope } from '@/features/groups/context/ScopeContext';
 import { supabase } from '@/lib/supabase/client';
-import { getCalendarTasks } from '@/features/calendar/data/calendar.repository';
+import { getCalendarTasks, setCalendarTaskCompleted } from '@/features/calendar/data/calendar.repository';
 import { localDateKey, monthDays, tagColor, tasksByDate } from '@/features/calendar/data/calendar';
 import type { CalendarTask } from '@/features/calendar/data/calendar';
 
 function TaskIcon({ task }: { task: CalendarTask }) {
   return task.category?.stickerPath ? <Image src={`/img/${task.category.stickerPath}.png`} alt={task.category.name} width={18} height={18} className="shrink-0 object-contain" /> : <FontAwesomeIcon icon={faNoteSticky} className="shrink-0 text-blue-400" />;
 }
-function DayDialog({ date, tasks, close }: { date: Date; tasks: CalendarTask[]; close: () => void }) {
+function DayDialog({ date, tasks, close, setCompleted }: { date: Date; tasks: CalendarTask[]; close: () => void; setCompleted: (id: number, completed: boolean) => Promise<void> }) {
+  const [pending, setPending] = useState<Set<number>>(new Set());
+  const pendingRef = useRef(new Set<number>());
+  const [saveError, setSaveError] = useState('');
+  const toggleCompleted = async (task: CalendarTask, completed: boolean) => {
+    if (pendingRef.current.has(task.id)) return;
+    pendingRef.current.add(task.id);
+    setPending(new Set(pendingRef.current));
+    setSaveError('');
+    try {
+      await setCompleted(task.id, completed);
+    } catch {
+      setSaveError('Could not update this task. Please try again.');
+    } finally {
+      pendingRef.current.delete(task.id);
+      setPending(new Set(pendingRef.current));
+    }
+  };
   const dialog = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useEffect(() => {
@@ -24,10 +41,10 @@ function DayDialog({ date, tasks, close }: { date: Date; tasks: CalendarTask[]; 
     return () => { document.body.style.overflow = overflow; focus?.focus(); };
   }, []);
   return createPortal(<div className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-950/40 p-4 backdrop-blur-sm" onClick={event => { if (event.target === event.currentTarget) close(); }}>
-    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="flex max-h-[85dvh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-2xl" onKeyDown={event => {
+    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="calendar-day-dialog flex max-h-[85dvh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-2xl" onKeyDown={event => {
       if (event.key === 'Escape') { event.stopPropagation(); close(); }
       if (event.key === 'Tab') {
-        const buttons = dialog.current?.querySelectorAll<HTMLButtonElement>('button');
+        const buttons = dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled)');
         if (!buttons?.length) return;
         const first = buttons[0], last = buttons[buttons.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -35,10 +52,19 @@ function DayDialog({ date, tasks, close }: { date: Date; tasks: CalendarTask[]; 
       }
     }}>
       <header className="flex items-center justify-between gap-3 border-b border-blue-200 bg-blue-300 px-5 py-4"><div><h2 id={titleId} className="font-semibold text-blue-900">{date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2><p className="mt-1 text-xs text-blue-800">{tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}</p></div><button type="button" aria-label="Close day overview" onClick={close} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-blue-900 hover:bg-blue-200"><FontAwesomeIcon icon={faXmark} /></button></header>
-      <div className="min-h-0 overflow-y-auto p-4">{!tasks.length ? <p className="py-8 text-center text-sm text-blue-500">No tasks for this day.</p> : <ul className="space-y-3">{tasks.map(task => <li key={task.id} className="rounded-xl border border-blue-100 border-l-4 p-3" style={{ borderLeftColor: tagColor(task.tags[0]?.color), backgroundColor: `${tagColor(task.tags[0]?.color)}12` }}>
-        <div className="flex items-start gap-2"><TaskIcon task={task} /><h3 className={`min-w-0 flex-1 break-words text-sm font-semibold text-blue-900 ${task.Completed ? 'line-through opacity-60' : ''}`}>{task.name}</h3>{task.Completed && <FontAwesomeIcon icon={faCheck} aria-label="Completed" className="text-blue-600" />}</div>
-        <p className="mt-2 text-xs text-blue-500">{task.category?.name ?? 'No category'} · {task.Completed ? 'Completed' : 'To do'}</p>
-        <div className="mt-2 flex flex-wrap gap-2">{task.tags.map(tag => <span key={tag.id} className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-white px-2 py-1 text-[11px] text-blue-900"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: tagColor(tag.color) }} />{tag.name}</span>)}</div>
+      <div className="min-h-0 overflow-y-auto p-4">{saveError && <p role="alert" className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{saveError}</p>}{!tasks.length ? <p className="py-8 text-center text-sm text-blue-500">No tasks for this day.</p> : <ul className="space-y-3">{tasks.map(task => <li key={task.id}>
+        <button type="button" aria-pressed={task.Completed} aria-label={`Mark ${task.name} as ${task.Completed ? 'incomplete' : 'completed'}`} aria-busy={pending.has(task.id)} disabled={pending.has(task.id)} onClick={() => void toggleCompleted(task, !task.Completed)}
+          className={`group flex w-full items-start gap-3 rounded-xl border border-l-4 p-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 ${task.Completed ? 'border-blue-200' : 'border-blue-100'}`}
+          style={{ borderLeftColor: tagColor(task.tags[0]?.color), backgroundColor: `${tagColor(task.tags[0]?.color)}${task.Completed ? '20' : '12'}` }}>
+          <span aria-hidden="true" className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 transition-all duration-200 ${task.Completed ? 'border-[#40537f] bg-[#40537f] text-white shadow-sm shadow-blue-200' : 'border-[#40537f] bg-white text-[#40537f] group-hover:border-[#40537f] group-hover:bg-blue-50'}`}>
+            <FontAwesomeIcon icon={faCheck} className={`text-[9px] transition-all duration-200 ${task.Completed ? 'scale-100 opacity-100' : 'scale-75 opacity-0 group-hover:opacity-40'}`} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-2"><TaskIcon task={task} /><span className={`min-w-0 flex-1 break-words text-sm font-semibold text-blue-900 transition-opacity ${task.Completed ? 'line-through opacity-60' : ''}`}>{task.name}</span></span>
+            <span className="mt-2 flex flex-wrap items-center gap-2 text-xs text-blue-500"><span>{task.category?.name ?? 'No category'}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${task.Completed ? 'bg-blue-100 text-blue-700' : 'bg-white/80 text-blue-500'}`}>{pending.has(task.id) ? 'Saving...' : task.Completed ? 'Completed' : 'To do'}</span></span>
+            {task.tags.length > 0 && <span className="mt-2 flex flex-wrap gap-2">{task.tags.map(tag => <span key={tag.id} className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-white px-2 py-1 text-[11px] text-blue-900"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: tagColor(tag.color) }} />{tag.name}</span>)}</span>}
+          </span>
+        </button>
       </li>)}</ul>}</div>
     </div>
   </div>, document.body);
@@ -79,6 +105,11 @@ function TaskCalendar({ userId, groupId }: { userId: number; groupId: number | n
     window.addEventListener('focus', focus);
     return () => { window.removeEventListener('focus', focus); void supabase.removeChannel(channel); };
   }, [load, userId, groupId]);
+  const setCompleted = async (id: number, completed: boolean) => {
+    await setCalendarTaskCompleted(id, completed);
+    setTasks(current => current.map(task => task.id === id ? { ...task, Completed: completed } : task));
+    void load(false);
+  };
   const tags = useMemo(() => [...new Map(tasks.flatMap(task => task.tags).map(tag => [tag.id, tag])).values()].sort((a, b) => a.name.localeCompare(b.name)), [tasks]);
   const activeTagId = tags.some(tag => String(tag.id) === tagId) ? tagId : 'all';
   const visible = tasks.filter(task => (!hideCompleted || !task.Completed) && (activeTagId === 'all' || task.tags.some(tag => String(tag.id) === activeTagId)));
@@ -87,7 +118,7 @@ function TaskCalendar({ userId, groupId }: { userId: number; groupId: number | n
   const monthTasks = tasks.filter(task => task.date.startsWith(monthKey));
   const completed = monthTasks.filter(task => task.Completed).length;
   const changeMonth = (offset: number) => { setSelectedDay(null); setTagId('all'); setMonth(new Date(month.getFullYear(), month.getMonth() + offset, 1, 12)); };
-  return <main className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden bg-white text-blue-900">
+  return <main className="calendar-workspace flex h-dvh min-w-0 flex-1 flex-col overflow-hidden bg-white text-blue-900">
     <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-blue-200 bg-blue-300 px-4 py-4 sm:px-6">
       <div><h1 className="flex items-center gap-2 text-xl font-bold"><FontAwesomeIcon icon={faCalendarDays} />Calendar</h1><p className="mt-1 text-xs text-blue-800">Your tasks, tags and categories in one view.</p></div>
       <div className="flex items-center gap-2"><button type="button" aria-label="Refresh calendar" disabled={loading} onClick={() => void load()} className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/70 hover:bg-white disabled:opacity-40"><FontAwesomeIcon icon={faRotateRight} /></button><button type="button" onClick={() => { const now = new Date(); setToday(now); setSelectedDay(null); setTagId('all'); setMonth(new Date(now.getFullYear(), now.getMonth(), 1, 12)); }} className="rounded-lg bg-white px-4 py-2 text-sm font-semibold hover:bg-blue-50">Today</button></div>
@@ -114,7 +145,7 @@ function TaskCalendar({ userId, groupId }: { userId: number; groupId: number | n
         })}</div>
       </div>
     </div>
-    {selectedDay && <DayDialog date={selectedDay} tasks={byDate.get(localDateKey(selectedDay)) ?? []} close={() => setSelectedDay(null)} />}
+    {selectedDay && <DayDialog date={selectedDay} tasks={byDate.get(localDateKey(selectedDay)) ?? []} close={() => setSelectedDay(null)} setCompleted={setCompleted} />}
   </main>;
 }
 export default function CalendarPage() {

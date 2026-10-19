@@ -1,74 +1,27 @@
-'use client'
-import React from 'react'
-import Link from 'next/link';
-
-
-
-import Image from "next/image";
-import { Micro_5 } from 'next/font/google';
+'use client';
+import type { Dispatch, SetStateAction } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faList } from '@fortawesome/free-solid-svg-icons';
-import useGroupState from "@/features/groups/hooks/useGroupState";
-import { Editor } from '@tiptap/core';
-import { GroupType } from "@/types/GroupType";
-const Micro = Micro_5({weight:"400",subsets:['latin'],});
-
-interface GroupsModalProps{
-    setActiveGroup:React.Dispatch<React.SetStateAction<boolean>>;
-    isActiveGroup:boolean
-    onUpdate: ()=>void;
-    setTaskFilter:React.Dispatch<React.SetStateAction<string>>;
-    setFilterImage:React.Dispatch<React.SetStateAction<string>>;
-    editListItem:object | null;
-    setEditListItem:React.Dispatch<React.SetStateAction<object | null>>;
-    Mode:string | undefined;
-    setMode:React.Dispatch<React.SetStateAction<string | undefined>>;
-    nameCategory:string | undefined;
-    setnameCategory:React.Dispatch<React.SetStateAction<string | undefined>>;
-     isActiveUser:boolean,
-    setActiveUser:React.Dispatch<React.SetStateAction<boolean>>;
+import { faUsers, faPlus, faUserPlus, faUserMinus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+interface Props {
+  setActiveGroup: Dispatch<SetStateAction<boolean>>;
+  setEditOn: Dispatch<SetStateAction<boolean>>;
+  DeleteOn: boolean;
+  setDeleteOn: Dispatch<SetStateAction<boolean>>;
+  setMode: Dispatch<SetStateAction<string | undefined>>;
+  Mode: string | undefined;
+  AddUserOn: boolean;
+  setAddUserOn: Dispatch<SetStateAction<boolean>>;
 }
-interface GroupStateProps{
-                EditOn:boolean,
-                setEditOn:React.Dispatch<React.SetStateAction<boolean>>;
-                Group:GroupType,
-                setGroup:React.Dispatch<React.SetStateAction<GroupType>>;
-                AddUserOn:boolean,
-                setAddUserOn:React.Dispatch<React.SetStateAction<boolean>>;
-              DeleteOn:boolean,
-                setDeleteOn:React.Dispatch<React.SetStateAction<boolean>>;
+export default function OptionsGroupsComponent({ setActiveGroup, setEditOn, DeleteOn, setDeleteOn, setMode, Mode, AddUserOn, setAddUserOn }: Props) {
+  const reset = () => { setAddUserOn(false); setEditOn(false); setDeleteOn(false); };
+  return <header className="shrink-0 border-b border-blue-200 bg-blue-300 px-4 py-5 sm:px-6 lg:px-8">
+    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-5">
+      <div><h1 className="flex items-center gap-3 text-xl font-bold text-blue-950"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/60"><FontAwesomeIcon icon={faUsers} /></span>Groups</h1><p className="mt-2 text-xs text-blue-800">A shared space for your team and tasks.</p></div>
+      <button type="button" onClick={() => { reset(); setMode('Insert'); setActiveGroup(true); }} className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-blue-700"><FontAwesomeIcon icon={faPlus} />Create group</button>
+    </div>
+    <nav aria-label="Group actions" className="mx-auto mt-5 flex max-w-6xl flex-wrap gap-2">
+      {[{ label: 'Add members', icon: faUserPlus, mode: 'Insert', active: AddUserOn && Mode === 'Insert' }, { label: 'Remove members', icon: faUserMinus, mode: 'Delete', active: AddUserOn && Mode === 'Delete' }].map(action => <button type="button" key={action.label} aria-pressed={action.active} onClick={() => { reset(); setAddUserOn(!action.active); setMode(action.mode); }} className={'flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-blue-700 ' + (action.active ? 'border-blue-600 bg-blue-600 text-white' : 'border-white/60 bg-white/60 text-blue-900 hover:bg-white')}><FontAwesomeIcon icon={action.icon} />{action.label}</button>)}
+      <button type="button" aria-pressed={DeleteOn} onClick={() => { reset(); setDeleteOn(!DeleteOn); setMode('Delete'); }} className={'flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-red-600 ' + (DeleteOn ? 'border-red-500 bg-red-500 text-white' : 'border-white/60 bg-white/60 text-blue-900 hover:bg-red-50 hover:text-red-600')}><FontAwesomeIcon icon={faTrashCan} />Delete group</button>
+    </nav>
+  </header>;
 }
-type OptionsGroupsProps = GroupsModalProps & GroupStateProps;
-const OptionsGroupsComponent = ({setActiveGroup,isActiveGroup,EditOn,setEditOn,DeleteOn,setDeleteOn,setMode,AddUserOn,setAddUserOn}: OptionsGroupsProps) => {
-    async function ToggleOthers(){
-        setAddUserOn(false);
-        setEditOn(false);
-        setDeleteOn(false);
-        
-    }
-
-    
-  return (
-    <div className="wrapper m-auto h-screen  md:w-24 bg-blue-400  ">
-                      <div className="flex flex-row md:block justify-between align-middle items-center m-auto w-11/12">
-                     
-                      <FontAwesomeIcon icon={faList} className="md:hidden size-9 float-left text-blue-900" ></FontAwesomeIcon>
-                      <h1 className={"text-center mt-3 text-7xl md:text-3xl text-blue-900  "+ Micro.className}>Options</h1>
-                      <p></p>
-                      </div>
-                      <ul className={ "md:flex md:flex-col  justify-center align-middle "}>
-                          {/* <li><FontAwesomeIcon icon={faUser} width={30} height={30} /></li> */}
-                          <li className="m-3 flex justify-center align-middle"><button onClick={()=>{ToggleOthers(); setActiveGroup(!isActiveGroup);setMode("Insert");}}><Image  src={"/img/groupCreate.png"} alt="user image"  width={40} height={40} /></button></li>
-                          <li  className="m-3 flex justify-center align-middle"><button onClick={()=>{/*setEditOn(!EditOn);setMode("Update");setDeleteOn(false)*/}} ><Image className='opacity-40' src={"/img/GroupUpdate.png"} alt="Menu image"  width={40} height={40} /></button></li>
-                          <li className="m-3 flex justify-center align-middle"><button onClick={()=>{ToggleOthers();setDeleteOn(!DeleteOn);setMode("Delete")}} ><Image src={"/img/GroupDelete.png"} alt="Calendar image"  width={40} height={40} /></button></li>
-                          <li className="m-3 flex justify-center align-middle"><button   onClick={()=>{ToggleOthers();setAddUserOn(true);setMode("Insert");}}><Image src={"/img/AddUser.png"} alt="sync image"  width={60} height={60} /></button></li>
-                           <li className="m-3 flex justify-center align-middle"><button  onClick={()=>{ToggleOthers();setAddUserOn(true);setMode("Delete");}}><Image src={"/img/UserRemove.png"} alt="sync image"  width={60} height={60} /></button></li>
-                         
-                          <hr className="text-blue-900 border-blue-900 "></hr>
-                      </ul>
-                      
-                   </div>
-  )
-}
-
-export default OptionsGroupsComponent

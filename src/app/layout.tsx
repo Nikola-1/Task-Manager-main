@@ -6,6 +6,7 @@ import "@/app/globals.css";
 import {AuthProvider} from "@/features/auth/context/AuthContext";
 import ClientLayout from "@/app/ClientLayout";
 import { ScopeProvider } from "@/features/groups/context/ScopeContext";
+import { ThemeProvider } from "@/features/account/context/ThemeContext";
 
 
 
@@ -44,12 +45,14 @@ export default function RootLayout({
       >
         <div className="flex md:flex-row flex-col justify-center   md:justify-start w-dvw">
          
+         <ThemeProvider>
          <AuthProvider>
          <ScopeProvider >
           
           <ClientLayout>{children}</ClientLayout>
           </ScopeProvider>
           </AuthProvider>
+          </ThemeProvider>
       
         
        
