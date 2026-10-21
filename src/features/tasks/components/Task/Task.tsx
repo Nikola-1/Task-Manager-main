@@ -304,12 +304,12 @@ useEffect(() => {
         selectedTask?.id === task.id ? "task-card-selected bg-blue-400 rounded-md shadow-md ring-1 ring-blue-500/30" : "rounded-md hover:bg-blue-100 hover:shadow-md hover:ring-1 hover:ring-blue-300/60"
       } ${task.Completed == true ? `task-card-completed` : ``}`}>
       {task.Completed && <span className="task-completed-ribbon" aria-hidden="true">Completed</span>}
-      <div className={`flex items-center align-top ${user?.display == false ? "" : "p-5 "}`}>
+      <div className={`task-card-content flex min-w-0 flex-1 flex-wrap items-center gap-y-1 align-top ${user?.display == false ? "" : "p-2 sm:p-3 "}`}>
         {/*filter == "Completed" ?  <input checked={task.Completed}  type="checkbox" className="m-1" onChange={() => updateStatus(task.id)} /> :  <input  type="checkbox" className="m-1" onChange={() => updateStatus(task.id)} />*/}
         
         <div className='flex flex-col'>
-          <div className='flex'>
-            <div className='flex'>
+          <div className='flex min-w-0 flex-wrap items-center gap-y-1'>
+            <div className='flex min-w-0 flex-1'>
             <label className="relative mr-2 inline-flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center self-center" onClick={event => event.stopPropagation()}>
               <input checked={task.Completed} disabled={savingStatus} aria-busy={savingStatus} type="checkbox" aria-label={`Mark ${task.name} as ${task.Completed ? 'incomplete' : 'completed'}`} className="peer sr-only" onChange={() => void updateStatus(task.id)} />
               <span aria-hidden="true" className="flex h-4 w-4 items-center justify-center rounded border-2 border-blue-200 bg-white text-transparent shadow-sm transition-all duration-200 hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2">
@@ -347,7 +347,7 @@ useEffect(() => {
        
        
       </div>
-      <div className='flex items-center'>
+      <div className='task-card-actions flex shrink-0 items-center'>
       <div className="flex items-center">
         
         <p className={`mx-2 ${isOverdue ? "text-red-700" : ""}`}>{DateExpression()}</p>
@@ -367,7 +367,7 @@ useEffect(() => {
         setY(e.clientY);
           }
             }
-          className="cursor-pointer invisible  group-hover:visible m-1 size-3"
+          className="task-card-menu cursor-pointer invisible group-hover:visible m-1 size-3"
            
         />
         {deleteError && <p role="alert" className="absolute left-0 top-full z-10 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">{deleteError}</p>}

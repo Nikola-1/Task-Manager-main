@@ -66,7 +66,6 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
     //
     const [X,setX] = useState<number>(0);
     const [Y,setY] = useState<number>(0);
-    const [sideMenuHidden,setSideMenuHidden] = useState<boolean>(false);
     const { open, toggleMenu,setOpen, options,id,setId } = useOptionsMenu("task", {
     
     
@@ -143,7 +142,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
     
     
      
-    const [toggle,setToggle] = useState(true);
+    const [toggle,setToggle] = useState(false);
     const [menuButtonToggle,setMenuButtonToggle] = useState<number | null>(null);
      const [typeMenuButtonTogle,setTypeMenuButtonToggle] = useState<"Categories" | "Tags">("Categories");
     
@@ -195,11 +194,6 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
   
   
   useEffect(()=>{
-        if(!SideMenuVisible){
-            setSideMenuHidden(false);
-        }
-  },[SideMenuVisible])
-  useEffect(()=>{
     console.log(X,Y);
   },[X,Y])
     return(
@@ -208,20 +202,11 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                 setX(e.clientX);
                       setY(e.clientY);
             }
-            }} onTransitionEnd={()=>{
-                if(SideMenuVisible){
-                    setSideMenuHidden(true)
-                }
-                
-                }} className={`Task-menu relative  border-blue-300 transition-all duration-700 ease-in-out md:border-r-2 md:border-l-2  ${SideMenuVisible ? "right-full w-0 " : "right-0 md:w-1/4"} ${SideMenuVisible ? "" : ""}`} id="TaskMenu">
+            }} className={`Task-menu relative border-blue-300 md:border-r-2 ${SideMenuVisible ? 'task-menu-collapsed' : ''}`} id="TaskMenu" inert={SideMenuVisible}>
            
         <div className="task-menu-wrapper   w-full   md:h-screen    ">
-        <FontAwesomeIcon icon={faAnglesDown} onClick={()=>{
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            toggle ? setToggle(false) : setToggle(true);
-            
-            }} className="size-16 md:hidden flex items-center justify-center align-middle m-auto text-blue-400 "></FontAwesomeIcon>
-            <div className={toggle ? "visible flex flex-col" : " hidden md:flex flex-col "}>
+        <button type="button" onClick={() => setToggle(!toggle)} aria-expanded={toggle} aria-controls="task-menu-content" className="flex min-h-11 w-full items-center justify-between border-b border-blue-200 px-4 py-3 text-sm font-semibold text-blue-900 md:hidden">Lists and tags<FontAwesomeIcon icon={faAngleDown} className={toggle ? 'rotate-180 transition-transform' : 'transition-transform'} /></button>
+            <div id="task-menu-content" className={toggle ? "flex flex-col" : "hidden md:flex flex-col"}>
             <div className="Task-intervals ">
                 {
                group && <div className="task-group-heading">
@@ -327,7 +312,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                         {tags?.map(tag=>
                                 tag.parent_id == null ?
                                <div key={tag.id} className="w-full">
-                            <div onClick={()=>{setMenuButtonToggle(tag.id);setTypeMenuButtonToggle("Tags"); setCategoryId(0); setTagId(tag.id); setFilter(tag.name); setFilterImage(null); }}  className={`task-menu-item group translate-x-3 w-11/12 justify-between transition-all   flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag.id && typeMenuButtonTogle == "Tags" ? "task-menu-selected" : ""}`}>
+                            <div onClick={()=>{setMenuButtonToggle(tag.id);setTypeMenuButtonToggle("Tags"); setCategoryId(0); setTagId(tag.id); setFilter(tag.name); setFilterImage(null); }}  className={`task-menu-item group translate-x-3 w-11/12 justify-between transition-colors duration-200 text-blue-900 cursor-pointer flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag.id && typeMenuButtonTogle == "Tags" ? "task-menu-selected" : "hover:bg-blue-100"}`}>
                             <div className={"flex flex-row justify-center align-middle items-center"}>
                             <FontAwesomeIcon icon={faTag} width={20} height={10}></FontAwesomeIcon> 
                             <p className="m-2">{tag.name}</p>
@@ -342,7 +327,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                              {tags?.map(tag2=>
                                 tag2.parent_id == tag.id ?
                                 
-                                <div key={tag2.id} onClick={()=>{setMenuButtonToggle(tag2.id);setTypeMenuButtonToggle("Tags"); setTagId(tag2.id); setFilter(tag2.name); setFilterImage(null);}}  className={`task-menu-item group translate-x-3 pl-5 w-11/12 justify-between transition-all   flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag2.id && typeMenuButtonTogle == "Tags" ? "task-menu-selected" : ""}`}>
+                                <div key={tag2.id} onClick={()=>{setMenuButtonToggle(tag2.id);setTypeMenuButtonToggle("Tags"); setTagId(tag2.id); setFilter(tag2.name); setFilterImage(null);}}  className={`task-menu-item group translate-x-3 pl-5 w-11/12 justify-between transition-colors duration-200 text-blue-900 cursor-pointer flex flex-row align-middle items-center p-1 rounded-md ${menuButtonToggle == tag2.id && typeMenuButtonTogle == "Tags" ? "task-menu-selected" : "hover:bg-blue-100"}`}>
                             <div className={"flex flex-row justify-center align-middle items-center"}>
                             <FontAwesomeIcon icon={faTag} width={20} height={10}></FontAwesomeIcon> 
                             <p className="m-2">{tag2.name}</p>
@@ -375,12 +360,12 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                 
             }} className="task-menu-item p-3 flex justify-start items-center align-middle text-center hover:cursor-pointer text-blue-900">
       
-                <FontAwesomeIcon icon={faCheckSquare} width={20} height={10} className="text-blue-300"/>
+                <FontAwesomeIcon icon={faCheckSquare} width={20} height={10} className="task-status-menu-icon text-blue-300"/>
 
                 <p className="px-2">Completed</p>
                 </div>
                 <div onClick={()=>{setTaskFilter("Deleted");  setCategoryId(null); setTagId(null); setFilterImage(null); setMenuButtonToggle(-4);}} className="task-menu-item p-3 flex justify-start items-center align-middle text-center hover:cursor-pointer text-blue-900">
-                <FontAwesomeIcon icon={faTrash} width={20} height={10} className="text-blue-300"/>
+                <FontAwesomeIcon icon={faTrash} width={20} height={10} className="task-status-menu-icon text-blue-300"/>
                 <p className="px-2">Deleted</p>
                 </div>
         </div>

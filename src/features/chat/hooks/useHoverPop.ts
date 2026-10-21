@@ -1,10 +1,13 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { useTheme } from '@/features/account/context/ThemeContext';
 
 export default function useHoverPop() {
+  const { theme } = useTheme();
   const audio = useRef<AudioContext | null>(null);
   const lastPop = useRef(0);
   useEffect(() => {
+    if (theme !== 'mario') return;
     const unlock = () => {
       try {
         const context = audio.current ?? (audio.current = new AudioContext());
@@ -19,8 +22,9 @@ export default function useHoverPop() {
       if (audio.current) void audio.current.close().catch(() => {});
       audio.current = null;
     };
-  }, []);
+  }, [theme]);
   return () => {
+    if (theme !== 'mario') return;
     try {
       const context = audio.current;
       if (!context || context.state !== 'running' || performance.now() - lastPop.current < 90) return;

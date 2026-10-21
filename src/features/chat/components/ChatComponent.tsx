@@ -4,9 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import type { ChatFriend, ChatMessage } from '@/features/chat/data/chat.types';
 import { friendName } from '@/features/chat/data/chat.types';
+import { useTheme } from '@/features/account/context/ThemeContext';
 
 interface Props { userId: number; friend: ChatFriend; onBack: () => void; }
 function Conversation({ userId, friend, onBack }: Props) {
+  const { theme } = useTheme();
   const storageKey = `help-task:chat:${userId}:${friend.id}`;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -19,8 +21,9 @@ function Conversation({ userId, friend, onBack }: Props) {
   useEffect(() => () => {
     if (audio.current) void audio.current.close().catch(() => {});
     audio.current = null;
-  }, []);
+  }, [theme]);
   const playSendPop = async () => {
+    if (theme !== 'mario') return;
     try {
       const context = audio.current ?? (audio.current = new AudioContext());
       if (context.state === 'suspended') await context.resume();

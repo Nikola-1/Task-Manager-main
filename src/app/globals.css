@@ -728,6 +728,11 @@ p{
 
 /* Task creation options: compact sections with clear, consistent controls. */
 .task-completed-ribbon {
+  display: none;
+}
+
+[data-theme="mario"] .task-completed-ribbon {
+  display: block;
   position: absolute;
   top: 0;
   left: -6px;
@@ -749,6 +754,7 @@ p{
 
 .task-card-completed,
 [data-theme="mario"] .task-card-completed {
+  opacity: 0.6;
   background-color: #fff;
   color: #40537f;
 }
@@ -861,6 +867,10 @@ p{
   color: #40537f;
 }
 
+[data-theme="light"] .task-menu-item .task-status-menu-icon {
+  color: #93c5fd;
+}
+
 .task-options-panel {
   color: #40537f;
   background: #fff;
@@ -929,3 +939,80 @@ p{
   box-shadow: inset 2px 2px 0 #ffffff40, inset -2px -2px 0 #17274340;
 }
 [data-theme="mario"] .task-options-panel input[type="checkbox"] { accent-color: #40537f; }
+
+/* Task workspace: a single working pane on small screens, split panes on desktop. */
+.task-workspace {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+.task-console-screen { min-width: 0; }
+.task-display { min-width: 0; flex: 1 1 0%; }
+.task-workspace .Task-menu { min-width: 0; flex-shrink: 0; }
+.task-workspace .Task-menu.task-menu-collapsed { display: none; }
+.task-workspace .task-list { min-width: 0; right: auto; }
+.task-workspace .task-description { min-width: 0; }
+.task-workspace .task-section-title { min-width: 0; overflow-wrap: anywhere; }
+.task-workspace .task-list [data-task-card] { min-width: 0; }
+.task-workspace .task-list [data-task-card] .group > div { min-width: 0; }
+.task-workspace .task-card-content > div:first-child { min-width: 0; flex: 1; }
+.task-workspace .task-list [data-task-card] p { overflow-wrap: anywhere; }
+.task-workspace .task-cards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+
+@media (min-width: 768px) {
+  .task-workspace {
+    width: 0;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .task-workspace .task-console-screen { height: 100%; min-height: 0; }
+  .task-workspace .Task-menu { width: clamp(190px, 20vw, 260px); }
+  .task-workspace .task-menu-wrapper { height: 100%; overflow-y: auto; overflow-x: hidden; }
+  .task-workspace .task-display { width: 0; height: 100%; min-height: 0; overflow: hidden; }
+  .task-workspace .task-list { height: 100%; }
+  .task-workspace .task-description { height: 100%; }
+}
+
+@media (max-width: 1279px) {
+  .task-workspace .task-display { flex-direction: column; gap: 0; }
+  .task-workspace .task-list { width: 100%; border-right: 0; }
+  .task-workspace .task-description { width: 100%; flex: 1 1 0%; }
+  .task-workspace .task-display-editing > .task-list { display: none; }
+  .task-workspace .task-editor-empty { display: none; }
+  .task-workspace .task-editor-back { display: flex; }
+  .task-workspace .task-editor > header { padding: 12px 16px; }
+  .task-workspace .task-editor-content .tiptap { padding: 16px; }
+  .task-workspace .task-editor .editor-dropdown-trigger { max-width: 150px; }
+}
+
+@media (min-width: 1280px) {
+  .task-workspace .task-list { width: 45%; flex: 0 0 45%; }
+  .task-workspace .task-description,
+  .task-workspace .task-editor-empty { width: 55%; flex: 1 1 0%; }
+  .task-workspace .task-editor-back { display: none; }
+}
+
+@media (max-width: 767px) {
+  .task-workspace { width: 100%; }
+  .task-workspace .Task-menu { width: 100%; border-bottom: 1px solid #bfdbfe; }
+  .task-workspace #task-menu-content { max-height: 45dvh; overflow-y: auto; overflow-x: hidden; }
+  .task-workspace .task-list { height: auto; min-height: 65dvh; }
+  .task-workspace .task-description { height: 85dvh; min-height: 420px; flex: none; }
+  .task-workspace .task-list > div:first-child { padding: 8px; }
+  .task-workspace .task-list [data-task-card] .group { margin: 6px; }
+  .task-workspace .task-list [data-task-card] .group > div { padding: 10px; }
+  .task-workspace .task-card-actions { flex-wrap: wrap; justify-content: flex-end; max-width: 40%; }
+  .task-workspace .task-editor .editor-tool { min-height: 40px; }
+  .task-workspace .task-editor-content .tiptap { font-size: 16px; }
+  .task-workspace input[type="text"],
+  .task-workspace input[type="search"],
+  .task-workspace textarea { font-size: 16px; }
+}
+
+@media (hover: none) {
+  .task-workspace .task-card-menu { visibility: visible; min-width: 24px; min-height: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-workspace .task-list { transition: none; }
+}
