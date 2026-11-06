@@ -26,18 +26,15 @@ const AccountOptionsComponent = ({logout,visibleOptions,setvisibleOptions}: Acco
             onClick={() => setThemeOptionsVisible(current => !current)}>UI Theme</button>
           {themeOptionsVisible && <fieldset id={themeOptionsId} className="m-2 rounded-md border border-blue-300 p-3">
             <legend className="px-1 text-sm font-semibold">Choose UI theme</legend>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3">
               {([{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' },
-                { value: 'system', label: 'System' }, { value: 'retro', label: 'Retro Game' }] satisfies { value: UITheme; label: string }[]).map(option =>
+                { value: 'system', label: 'System' }, { value: 'retro', label: 'Retro Game' },
+                { value: 'mario', label: 'Super Mario' }] satisfies { value: UITheme; label: string }[]).map(option =>
                 <label key={option.value} className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-blue-100">
                   <input type="radio" name={themeOptionsId} value={option.value} checked={theme === option.value}
                     onChange={() => setTheme(option.value)} className="accent-blue-500" />
                   {option.label}
                 </label>)}
-              <button type="button" aria-pressed={theme === 'mario'} onClick={() => setTheme('mario')}
-                className="mario-theme-button border-2 border-red-700 bg-red-600 px-3 py-2 text-white hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700">
-                Super Mario
-              </button>
             </div>
             {theme === 'retro' && <p className="mt-2 text-sm">Retro Game: pixel lettering, arcade colors and classic game panels.</p>}
             {theme === 'mario' && <p className="mt-2 text-sm">Super Mario: blue skies, red buttons, green pipes and golden blocks.</p>}

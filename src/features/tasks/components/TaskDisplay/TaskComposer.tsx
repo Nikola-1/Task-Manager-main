@@ -77,8 +77,8 @@ export default function TaskComposer({ userId, groupId, date, categoryId, tagId,
       const id = await createTaskWithOptions({ name, date, userId, groupId, categoryId: activeCategory, tagIds: activeTags, file, priority });
       created = true;
       if (priority !== 'none') {
-        try { saveTaskPriority(userId, id, priority); }
-        catch { setError('Task added, but its priority could not be saved on this device.'); }
+        try { await saveTaskPriority(userId, id, priority); }
+        catch (cause) { setError(`Task added, but its priority could not be saved. ${cause instanceof Error ? cause.message : ''}`); }
       }
       setName(''); setPriority('none'); setCategory(undefined); setSelectedTags(undefined); setFile(null); setOpen(false);
       setSubmitted(false);

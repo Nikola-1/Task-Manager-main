@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --incremental false",
-    "check:imports": "node scripts/check-imports.cjs"
+    "check:imports": "node scripts/check-imports.cjs",
+    "test:user-data": "node scripts/test-user-data.cjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

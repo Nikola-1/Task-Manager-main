@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import type { UserType as Usertype } from '@/types/UserType';
 import type { TaskType } from '@/types/TaskType';
+import { permanentlyDeleteTasks } from '@/features/tasks/data/delete-tasks.repository';
 
 export async function renameTask(id: number, name: string): Promise<string> {
   const trimmedName = name.trim();
@@ -110,9 +111,7 @@ export async function AddTask(
 
 export async function deleteDeleted(tasksArray:Array<TaskType>){
       const ids = tasksArray.filter(task => task.Deleted).map(task => task.id);
-      if (!ids.length) return;
-      const { error } = await supabase.from("tasks").delete().in("id", ids).eq("Deleted", true);
-      if (error) throw new Error(error.message);
+      await permanentlyDeleteTasks(ids);
     }
 
 export async function DeleteData(id:number){

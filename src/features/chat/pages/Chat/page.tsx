@@ -3,9 +3,17 @@ import ChatComponent from '@/features/chat/components/ChatComponent';
 import FriendsComponent from '@/features/chat/components/FriendsComponent';
 import FriendsModal from '@/features/chat/components/FriendsModal';
 import useChatState from '@/features/chat/hooks/useChatState';
+import { Suspense, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-export default function ChatPage() {
+function ChatContent() {
   const { user, authLoading, relations, selectedFriend, setSelectedFriend, loading, error, refreshFriends, friendsModalProps } = useChatState();
+  const params = useSearchParams();
+  const requestedFriendId = Number(params.get('friendId'));
+  useEffect(() => {
+    const relation = relations.find(row => row.accepted && row.friend.id === requestedFriendId);
+    if (relation) setSelectedFriend(relation.friend);
+  }, [requestedFriendId, relations, setSelectedFriend]);
   if (authLoading) return <p role="status" className="p-6 text-blue-900">Loading chat...</p>;
   if (!user) return <p className="p-6 text-blue-900">Sign in to view your friends.</p>;
   return <div className="inbox-surface flex h-dvh min-w-0 flex-1 overflow-hidden">
@@ -17,4 +25,8 @@ export default function ChatPage() {
       <div className="hidden min-w-0 flex-1 items-center justify-center bg-blue-50/50 p-8 text-center md:flex"><div><h2 className="text-lg font-semibold text-blue-900">Your conversations</h2><p className="mt-2 text-sm text-blue-500">Choose a friend to open a local conversation preview.</p></div></div>}
     <FriendsModal key={user.id} {...friendsModalProps} />
   </div>;
+}
+
+export default function ChatPage() {
+  return <Suspense fallback={<p role="status" className="p-6 text-blue-900">Loading chat...</p>}><ChatContent /></Suspense>;
 }

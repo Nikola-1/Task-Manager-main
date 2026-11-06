@@ -127,7 +127,7 @@ export default function TaskEditor({ editor, task, refreshTasks }: TaskEditorPro
           <span className="break-words">{task.category.name || 'Category'}</span>
         </span>}
       </div>
-      <h2 className={`${micro.className} break-words text-2xl`} style={{ color: '#40537f' }}>{task.name}</h2>
+      <h2 className={`${micro.className} break-words text-2xl text-[#40537f]`}>{task.name}</h2>
     </header>
     <div role="group" aria-label="Text formatting" className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-blue-200 bg-blue-50 px-3 py-2.5">
       <EditorDropdown label="Text style" icon="T" value={String(state.heading)} options={[

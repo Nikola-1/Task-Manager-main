@@ -18,6 +18,8 @@ import { shatterTask } from '@/features/tasks/components/Task/shatterTask';
 import { marioDeleteTask } from '@/features/tasks/components/Task/marioDeleteTask';
 import SendTaskDialog from '@/features/tasks/components/Task/SendTaskDialog';
 import useTaskPriority, { priorityOptions } from '@/features/tasks/hooks/useTaskPriority';
+import { saveTaskAttachment } from '@/features/tasks/data/task-attachments.repository';
+import { permanentlyDeleteTasks } from '@/features/tasks/data/delete-tasks.repository';
 
 export interface TaskProps {
   task: TaskType;
@@ -48,6 +50,9 @@ export default function Task({ task, filter, setSelectedTask, selectedTask, refr
   const [statusError, setStatusError] = useState('');
   const [priorityMenuOpen, setPriorityMenuOpen] = useState(false);
   const [priorityError, setPriorityError] = useState('');
+  const [fileError, setFileError] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const uploadingFileRef = useRef(false);
 
   const saveName = async () => {
     if (savingNameRef.current) return;
@@ -97,37 +102,59 @@ useEffect(() => {
     }
   };
   const Download = async () => {
+    setFileError('');
+    try {
       const {data,error} = await supabase.storage.from("FileBucket").download(`${task.folder_name}/${task.file_name}`);
-
-      if(error){
-        console.log(error);
-      }
+      if (error || !data) throw new Error(error?.message ?? 'File not found.');
       const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href= url;
       a.download = task.file_name;
       a.click();
       URL.revokeObjectURL(url);
+    } catch (cause) {
+      setFileError(`Could not download attachment: ${cause instanceof Error ? cause.message : 'Please try again.'}`);
+    }
   }
   
  
 
   const fileInput = useRef<HTMLInputElement>(null);
    const {user} = useAuth();
-   const { priority, setPriority } = useTaskPriority(user?.id, task.id);
+   const attachFile = async (file: File | undefined) => {
+     if (!file || uploadingFileRef.current) return;
+     if (!user) { setFileError('Sign in before adding an attachment.'); return; }
+     uploadingFileRef.current = true;
+     setUploadingFile(true); setFileError('');
+     try {
+       const attachment = await saveTaskAttachment(task.id, user.id, file);
+       setSelectedTask(current => current?.id === task.id ? { ...current, ...attachment } : current);
+       try { await refreshTasks(); }
+       catch { setFileError('Attachment saved. Refresh the task list to see it.'); }
+     } catch (cause) {
+       setFileError(cause instanceof Error ? cause.message : 'Could not add attachment.');
+     } finally {
+       uploadingFileRef.current = false;
+       setUploadingFile(false);
+     }
+   };
+   const { priority, setPriority, error: priorityLoadError } = useTaskPriority(user?.id, task.id);
+   const prioritySaving = useRef(false);
    const currentPriority = priorityOptions.find(option => option.value === priority)!;
    const priorityMenuOptions = priorityOptions.map(option => ({
      label: `${priority === option.value ? '✓ ' : ''}${option.label}`,
      icon: faFlag,
-     action: () => {
+     action: async () => {
+       if (prioritySaving.current) return;
+       prioritySaving.current = true;
        try {
-         setPriority(option.value);
+         await setPriority(option.value);
          setPriorityError('');
          setPriorityMenuOpen(false);
-       } catch {
-         setPriorityError('Could not save priority on this device. Please try again.');
+       } catch (cause) {
+         setPriorityError(cause instanceof Error ? cause.message : 'Could not save priority. Please try again.');
          setPriorityMenuOpen(false);
-       }
+       } finally { prioritySaving.current = false; }
      },
    }));
    const [tags,setTags] = useState<object[] | null>([]);
@@ -168,36 +195,17 @@ useEffect(() => {
                 icon:faFlag,
                 action:()=>{setPriorityError(''); setOpen(false); setPriorityMenuOpen(true);}
             },
-            File:{
-                label:task.file_name != null ? "Change file" : "Add file",
-                icon:faFile,
-                action:async ()=>{
-                 
-                  
-                  fileInput.current.onchange = async (e) => {
-                    
-      const file = e.target.files[0];
-      if (!file) {
-        console.log("User zatvorio File Explorer bez izbora fajla");
-        return;
-      }
-      
-                  
-                    
-                  
-
-
-                   const {data,error} = await supabase.storage.from("FileBucket").upload(`user-${user?.id}/${file.name}`,file); 
-                   
-                  const {data2,error2} = await supabase.from("tasks").update({folder_name:`user-${user?.id}`}).eq("id",task.id).eq("user_id",user?.id);
-                  const {data3,error3} = await supabase.from("tasks").update({file_name:file.name}).eq("id",task.id).eq("user_id",user?.id);
-    }
-    fileInput.current?.click();
-                  
-                  }
-                  
+            File: {
+                label: uploadingFile ? 'Uploading file...' : task.file_name != null ? 'Change file' : 'Add file',
+                icon: faFile,
+                action: () => {
+                  if (uploadingFileRef.current) return;
+                  setOpen(false);
+                  setFileError('');
+                  fileInput.current?.click();
+                },
             },
-      
+
     });
     
     const {open:openMenu2,toggleMenu:toggleMenuTag2,setOpen:setOpenMenuTag2,options:optionsTag2,id:idTag2,setId:setIdTag2} = useOptionsMenu("tag",{
@@ -263,16 +271,15 @@ useEffect(() => {
       const animateDeletion = document.documentElement.dataset.theme === 'mario' ? marioDeleteTask : shatterTask;
       await animateDeletion(cardRef.current, async () => {
         if (permanent) {
-          const { error } = await supabase.from('tasks').delete().eq('id', task.id);
-          if (error) throw new Error(error.message);
+          await permanentlyDeleteTasks([task.id]);
         } else {
           await DeleteData(task.id);
         }
         setSelectedTask(current => current?.id === task.id ? null : current);
         await refreshTasks();
       });
-    } catch {
-      setDeleteError('Could not delete task. Please try again.');
+    } catch (cause) {
+      setDeleteError(cause instanceof Error ? cause.message : 'Could not delete task. Please try again.');
     } finally {
       deletingRef.current = false;
       setDeleting(false);
@@ -372,8 +379,14 @@ useEffect(() => {
         />
         {deleteError && <p role="alert" className="absolute left-0 top-full z-10 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">{deleteError}</p>}
         {statusError && <p role="alert" className="absolute left-0 top-full z-10 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">{statusError}</p>}
-        {priorityError && <p role="alert" className="absolute left-0 top-full z-10 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">{priorityError}</p>}
-         <input type='file' ref={fileInput} className="hidden " />
+        {(priorityError || priorityLoadError) && <p role="alert" className="absolute left-0 top-full z-10 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">{priorityError || priorityLoadError}</p>}
+         <input type="file" ref={fileInput} className="hidden" disabled={uploadingFile} onChange={event => {
+          const file = event.currentTarget.files?.[0];
+          event.currentTarget.value = '';
+          void attachFile(file);
+        }} />
+        {uploadingFile && <p role="status" className="mt-2 text-xs text-blue-700">Uploading attachment...</p>}
+        {fileError && <p role="alert" className="mt-2 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">{fileError}</p>}
         <OptionsMenu title="Task options" open={open} options={options} x={X} y={Y} closeMenu={closeMenu} />
         <OptionsMenu title="Priority" open={priorityMenuOpen} options={priorityMenuOptions} x={X} y={Y} closeMenu={() => setPriorityMenuOpen(false)} />
         <OptionsMenu title="Tags" open={openMenu2} options={optionsTag2} x={X+150} y={Y+50} closeMenu={ClosemenuTag2} />

@@ -2,17 +2,15 @@
 
 import Nav from "@/components/layout/nav";
 import LoginComponent from "@/features/auth/components/Login/LoginComponent";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useAuth } from '@/features/auth/context/AuthContext';
+import MessageNotifications from '@/features/chat/components/MessageNotifications';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [User,setUser] = useState<object>();
-  useEffect(() => {
-    // primer: proveri localStorage ili Supabase auth
-    const token = localStorage.getItem("user");
-    setLoggedIn(!!token);
-    console.log(User);
-  }, []);
+  const { user, loggedIn, setLoggedIn, authLoading } = useAuth();
+  const [, setUser] = useState<object>({});
+
+  if (authLoading) return <p role="status" className="p-6 text-blue-900">Loading account...</p>;
 
   if (!loggedIn) {
     return <LoginComponent setLoginProps={setLoggedIn} setUserProps={setUser}  />;
@@ -21,6 +19,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex md:flex-row flex-col justify-center md:justify-start w-dvw">
       <Nav />
+      {user && <MessageNotifications key={user.id} userId={user.id} />}
       
       {children}
     </div>

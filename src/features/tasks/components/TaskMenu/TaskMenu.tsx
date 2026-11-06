@@ -24,6 +24,7 @@ import { Micro_5 } from "next/font/google"
 import { GetTags } from '@/features/tags/data/tags.repository';
 import Link from "next/link"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import useUnreadMessages from '@/features/chat/hooks/useUnreadMessages';
 
 interface TaskMenuProps {
     setToggleModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -61,6 +62,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
     const [tags,setTags] = useState<any[] | null>([]);
     //Contexts
     const {user} = useAuth();
+    const unreadMessages = useUnreadMessages(user?.id);
     const {group,groupId} = useScope();
     
     //
@@ -142,7 +144,6 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
     
     
      
-    const [toggle,setToggle] = useState(false);
     const [menuButtonToggle,setMenuButtonToggle] = useState<number | null>(null);
      const [typeMenuButtonTogle,setTypeMenuButtonToggle] = useState<"Categories" | "Tags">("Categories");
     
@@ -205,8 +206,7 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
             }} className={`Task-menu relative border-blue-300 md:border-r-2 ${SideMenuVisible ? 'task-menu-collapsed' : ''}`} id="TaskMenu" inert={SideMenuVisible}>
            
         <div className="task-menu-wrapper   w-full   md:h-screen    ">
-        <button type="button" onClick={() => setToggle(!toggle)} aria-expanded={toggle} aria-controls="task-menu-content" className="flex min-h-11 w-full items-center justify-between border-b border-blue-200 px-4 py-3 text-sm font-semibold text-blue-900 md:hidden">Lists and tags<FontAwesomeIcon icon={faAngleDown} className={toggle ? 'rotate-180 transition-transform' : 'transition-transform'} /></button>
-            <div id="task-menu-content" className={toggle ? "flex flex-col" : "hidden md:flex flex-col"}>
+            <div id="task-menu-content" className="flex flex-col">
             <div className="Task-intervals ">
                 {
                group && <div className="task-group-heading">
@@ -239,7 +239,8 @@ export default function TaskMenu({refreshFlag, ToggleModal,setToggleModal,setTas
                     </li>
                     <li className="flex justify-between   p-1   items-center text-blue-900 hover:cursor-pointer transition-all">
                         <Link href="/pages/Chat" className="flex flex-row align-middle justify-between items-center w-full">
-                        <div className="flex flex-row align-middle items-center"><Image src={message} width={30} height={20} alt="Calendar with number on it"></Image><p className="m-2">Inbox</p> </div> <p>3</p>
+                        <div className="flex flex-row align-middle items-center"><Image src={message} width={30} height={20} alt="" /><p className="m-2">Inbox</p></div>
+                        {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} className="min-w-6 rounded-full bg-blue-900 px-2 py-0.5 text-center text-xs font-semibold text-white">{unreadMessages}</span>}
                         </Link>
                     </li>
                     <hr className="border-blue-300 border-t-2 mt-3"></hr>

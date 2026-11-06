@@ -39,6 +39,11 @@ export default function GroupsComponent({ Mode, EditOn, AddUserOn, DeleteOn, set
       if (!active) return;
       if (!data) setError('Could not load groups. Please refresh the page.');
       setGroups(data ?? []);
+      if (data) window.dispatchEvent(new CustomEvent('helptask:groups-viewed', {
+        detail: { userId: user.id, groupIds: data
+          .filter(group => group.Users_Groups?.some((member: { id_user: number }) => member.id_user === user.id))
+          .map(group => group.id) },
+      }));
     }).catch(() => { if (active) setError('Could not load groups. Please refresh the page.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -71,7 +76,7 @@ export default function GroupsComponent({ Mode, EditOn, AddUserOn, DeleteOn, set
         const owner = user.id === (group.ownerId ?? group.owner_id ?? group.Admin);
         return <li key={group.id}><button type="button" disabled={deleting !== null} onClick={() => void selectGroup(group)} aria-label={action + ': ' + name} className={'group flex h-full min-h-48 w-full flex-col rounded-2xl border bg-white p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ' + (DeleteOn ? 'border-red-100 hover:border-red-300' : 'border-blue-100 hover:border-blue-300')}>
           <span className="mb-4 flex w-full items-start justify-between gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-100 bg-blue-50">{group.image_path ? <Image src={'/img/' + group.image_path + '.png'} alt="" width={30} height={30} className="object-contain" /> : <FontAwesomeIcon icon={faUsers} className="text-xl text-blue-400" />}</span>{owner && <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">Owner</span>}</span>
-          <span className="mb-2 break-words text-base font-semibold text-blue-950">{name}</span><span className="flex items-center gap-2 text-xs text-slate-500"><FontAwesomeIcon icon={faUsers} className="text-blue-300" />{members} {members === 1 ? 'member' : 'members'}</span>
+          <span className="group-card-name mb-2 break-words text-base font-semibold text-blue-950">{name}</span><span className="flex items-center gap-2 text-xs text-slate-500"><FontAwesomeIcon icon={faUsers} className="text-blue-300" />{members} {members === 1 ? 'member' : 'members'}</span>
           <span className={'mt-5 flex w-full items-center justify-between border-t border-slate-100 pt-3 text-xs font-semibold ' + (DeleteOn ? 'text-red-500' : 'text-blue-500')}>{deleting === group.id ? 'Deleting...' : action}<FontAwesomeIcon icon={faArrowRight} className="transition-transform group-hover:translate-x-1" /></span>
         </button></li>;
       })}</ul>}

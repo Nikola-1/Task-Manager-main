@@ -32,30 +32,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem("user");
-
-      if (savedUser) {
-        const parsedUser: UserType = JSON.parse(savedUser);
-
-        setUser(parsedUser);
-        setLoggedIn(true);
-      }
-    } catch (error) {
-      console.error("Greška pri učitavanju korisnika:", error);
-      localStorage.removeItem("user");
-    } finally {
-      setAuthLoading(false);
-    }
+    let active = true;
+    fetch('/api/session', { cache: 'no-store' }).then(async response => {
+      if (!response.ok) throw new Error('Sign in again.');
+      const saved: UserType = await response.json();
+      if (active) { setUser(saved); setLoggedIn(true); localStorage.setItem('user', JSON.stringify(saved)); }
+    }).catch(() => { if (active) localStorage.removeItem('user'); })
+      .finally(() => { if (active) setAuthLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+    const response = await fetch('/api/session', { method: 'DELETE' });
+    if (!response.ok) throw new Error('Could not sign out. Please try again.');
     localStorage.removeItem("user");
 
     setUser(null);
     setLoggedIn(false);
 
-    router.push("/login");
+    router.push("/");
+    } catch { window.alert('Could not sign out. Check your connection and try again.'); }
   };
 
   return (

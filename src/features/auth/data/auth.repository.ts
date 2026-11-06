@@ -43,25 +43,13 @@ export async function Register(Username:string | null, Name:string | null, Email
     }
 
 export async function Login(Username:string | null,Password:string | null){
-    
-      if(Username != null && Password != null){
-                const {data,error} = await supabase.from("Users").select("*").eq("Username",Username).eq("Password",Password).single();
-                
-                if(!error && data != null){
-                      console.log("Uspesno ste se ulogovali");
-                    
-                    console.log(data);
-                         return data;
-                }
-                else{
-                  if(error?.code === 'PGRST116'){
-                    console.log("Nije pronadjen korisnik");
-                  }
-                  console.log(data);
-                  console.log("Pogresni kredencijali");
-                  console.log(error);
-                }
-            }
+  const response = await fetch('/api/session', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: Username, password: Password }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error ?? 'Could not sign in.');
+  return data;
     }
 
 export async function setUserAfterDisplay(user:object | null){

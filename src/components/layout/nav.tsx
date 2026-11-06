@@ -1,5 +1,5 @@
 'use client'
-/* eslint-disable @next/next/no-img-element */
+
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faUser } from "@fortawesome/free-solid-svg-icons";
 import menu from "@/assets/img/menu.png";
@@ -11,35 +11,64 @@ import clock from "@/assets/img/clock.png";
 import Groups from "@/assets/img/Groups.png";
 import { Micro_5 } from "next/font/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faList } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import Link from "next/link"
-import { useScope } from "@/features/groups/context/ScopeContext";
+import { usePathname } from "next/navigation";
+import { useAuth } from '@/features/auth/context/AuthContext';
+import useGroupNotifications from '@/features/groups/hooks/useGroupNotifications';
 const Micro = Micro_5({weight:"400",subsets:['latin'],});
 export default function Nav(){
-        const [active,setActive] = useState(false);
-       
+    const [active, setActive] = useState(false);
+    const pathname = usePathname();
+    const { user: currentUser } = useAuth();
+    const groupNotifications = useGroupNotifications(currentUser?.id);
+    const links = [
+        { href: '/pages/Account', label: 'Account', icon: user },
+        { href: '/pages/Task', label: 'Tasks', icon: menu },
+        { href: '/pages/Calendar', label: 'Calendar', icon: Calendar },
+        { href: '/pages/Habits', label: 'Habits', icon: sync },
+        { href: '/pages/Groups', label: 'Groups', icon: Groups },
+        { href: '/pages/Pomodoro', label: 'Pomodoro', icon: clock },
+    ];
     return(
-        <div className={ +  active ? "nav float-left md:w-36   bg-blue-300 h-screen z-10 transition-transform " : "nav float-left md:w-36   bg-blue-300 h-fit md:h-screen z-10 transition-transform"}>
-
-             <div className="wrapper m-auto  md:w-24  ">
-                <div className="flex flex-row md:block justify-between align-middle items-center m-auto w-11/12">
-               
-                <FontAwesomeIcon icon={faList} className="md:hidden size-9 float-left text-blue-900" onClick={()=> active ? setActive(false) : setActive(true) }></FontAwesomeIcon>
-                <h1 data-helptask-sidebar-logo className={"text-center mt-3 text-7xl md:text-3xl text-blue-900  "+ Micro.className}>HelpTask</h1>
-                <p></p>
+        <nav aria-label="Main navigation" className="nav sticky top-0 z-30 w-full shrink-0 bg-blue-300 shadow-sm md:static md:h-screen md:w-36 md:shadow-none">
+             <div className="wrapper mx-auto w-full md:w-24">
+                <div className="flex h-16 items-center justify-between px-4 md:h-auto md:justify-center md:px-0">
+                    <h1 data-helptask-sidebar-logo className={"text-center text-4xl leading-none text-blue-900 md:mt-3 md:text-3xl " + Micro.className}>HelpTask</h1>
+                    <button type="button" aria-label={active ? 'Close navigation' : 'Open navigation'}
+                        aria-expanded={active} aria-controls="main-navigation-links"
+                        onClick={() => setActive(current => !current)}
+                        onKeyDown={event => { if (event.key === 'Escape') setActive(false); }}
+                        className="flex size-11 items-center justify-center rounded-lg text-blue-900 hover:bg-blue-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 md:hidden">
+                        <FontAwesomeIcon icon={active ? faXmark : faBars} className="size-5" />
+                    </button>
                 </div>
-                <ul className={+ active ? "md:flex md:flex-col  justify-center align-middle " : "md:flex md:flex-col  justify-center align-middle hidden"}>
-                    {/* <li><FontAwesomeIcon icon={faUser} width={30} height={30} /></li> */}
-                    <li className="m-3 flex justify-center align-middle"><Link href="/pages/Account"><Image src={user} alt="user image" data-sidebar-profile width={40} height={40} /></Link></li>
-                    <li  className="m-3 flex justify-center align-middle"><Link href="/pages/Task"><Image src={menu} alt="Menu image"  width={40} height={40} /></Link></li>
-                    <li className="m-3 flex justify-center align-middle"><Link href="/pages/Calendar"><Image src={Calendar} alt="Calendar image"  width={40} height={40} /></Link></li>
-                    <li className="m-3 flex justify-center align-middle"><Link href="/pages/Habits"><Image src={sync} alt="sync image"  width={40} height={40} /></Link></li>
-                     <li className="m-3 flex justify-center align-middle"><Link href="/pages/Groups"><Image src={Groups} alt="sync image"  width={40} height={40} /></Link></li>
-                    <li className="m-3 flex justify-center align-middle"><Link href="/pages/Pomodoro"><Image src={clock} alt="clock image"  width={40} height={40} /></Link></li>
-                    <hr className="text-blue-900 border-blue-900 "></hr>
+                <ul id="main-navigation-links"
+                    onKeyDown={event => {
+                        if (event.key === 'Escape') {
+                            setActive(false);
+                            event.currentTarget.parentElement?.querySelector('button')?.focus();
+                        }
+                    }}
+                    className={(active ? 'grid' : 'hidden') + ' grid-cols-3 gap-2 border-t border-blue-900/15 p-3 md:flex md:flex-col md:gap-0 md:border-0 md:p-0'}>
+                    {links.map(({ href, label, icon }) => {
+                        const selected = pathname === href || pathname.startsWith(href + '/');
+                        return <li key={href} className="min-w-0 md:m-3 md:flex md:justify-center">
+                            <Link href={href} aria-current={selected ? 'page' : undefined} title={label}
+                                aria-label={href === '/pages/Groups' && groupNotifications > 0 ? `Groups, ${groupNotifications} new notifications` : label}
+                                onClick={() => setActive(false)}
+                                className={'flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl px-1 py-3 text-blue-900 transition-colors hover:bg-blue-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 md:min-h-0 md:p-2 ' + (selected ? 'bg-blue-100 ring-2 ring-inset ring-blue-900/25' : '')}>
+                                <span className="relative inline-flex shrink-0">
+                                <Image src={icon} alt="" data-sidebar-profile={href === '/pages/Account' ? true : undefined}
+                                    width={40} height={40} className="size-7 object-contain md:size-10" />
+                                {href === '/pages/Groups' && groupNotifications > 0 && <span aria-hidden="true" className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-blue-300">{groupNotifications > 99 ? '99+' : groupNotifications}</span>}
+                                </span>
+                                <span className="max-w-full text-center text-xs font-semibold leading-snug md:sr-only">{label}</span>
+                            </Link>
+                        </li>;
+                    })}
                 </ul>
-                
              </div>
              <svg className="mario-sidebar-mushroom" aria-hidden="true" viewBox="0 0 32 28" width="64" height="56" shapeRendering="crispEdges">
                 <defs>
@@ -63,7 +92,7 @@ export default function Nav(){
                 <path fill="#fffdf4" d="M13 8h6v1h2v5h-2v2h-6v-2h-2V9h2zM4 9h3v1h1v4H7v2H3v-3h1zM25 9h3v4h1v3h-4v-2h-1v-4h1zM14 3h4v2h-4z" />
                 <path fill="#eadbd8" d="M12 15h2v1h6v-1h2v1h-2v1h-8zM3 15h4v1H3zM25 15h4v1h-4z" />
              </svg>
-        </div>
+        </nav>
     )
 }
 

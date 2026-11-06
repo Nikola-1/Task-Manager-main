@@ -151,12 +151,29 @@ export default function TaskDisplay({
             complete:{
                 label:user?.display==false ? "Display Tasks:Column" : "Display Tasks:Row",
                 icon:faColumns,
-                action:async ()=>{ const{data,error} = await supabase.rpc("toggle_display_tasks", { uid: user?.id }); setUserAfterDisplayFunc(user);  }
+                action:async ()=>{
+                  if (!window.matchMedia('(min-width: 768px)').matches) return;
+                  const{data,error} = await supabase.rpc("toggle_display_tasks", { uid: user?.id });
+                  setUserAfterDisplayFunc(user);
+                }
             },
            
             
           });
     
+    useEffect(() => {
+      const desktop = window.matchMedia('(min-width: 768px)');
+      const closeMobileLayoutMenu = () => {
+        if (!desktop.matches) {
+          setOpen(false);
+          setSideMenuVisible(false);
+        }
+      };
+      closeMobileLayoutMenu();
+      desktop.addEventListener('change', closeMobileLayoutMenu);
+      return () => desktop.removeEventListener('change', closeMobileLayoutMenu);
+    }, [setOpen, setSideMenuVisible]);
+
     useEffect(()=>{
       console.log(user);
       console.log(tasksArray);
@@ -185,11 +202,11 @@ export default function TaskDisplay({
             <div  className={`task-list h-full relative w-full md:w-2/4 md:border-r-2  flex flex-col transition-all duration-700 ease-in-out ${SideMenuVisible ? "right-1" : ""}`}>
             <div className="flex justify-between h-fit items-center p-3">
               <div className="flex items-center">
-                <button type="button" aria-label={SideMenuVisible ? 'Show task menu' : 'Hide task menu'} aria-expanded={!SideMenuVisible} aria-controls="TaskMenu" onClick={()=>setSideMenuVisible(!SideMenuVisible)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg hover:bg-blue-100"><FontAwesomeIcon icon={faLeftLong} className={`transition-transform ${SideMenuVisible ? "rotate-180" : "rotate-0"}`}/></button>
+                <button type="button" aria-label={SideMenuVisible ? 'Show task menu' : 'Hide task menu'} aria-expanded={!SideMenuVisible} aria-controls="TaskMenu" onClick={()=>setSideMenuVisible(!SideMenuVisible)} className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg hover:bg-blue-100 md:flex"><FontAwesomeIcon icon={faLeftLong} className={`transition-transform ${SideMenuVisible ? "rotate-180" : "rotate-0"}`}/></button>
                    
                     <motion.h3 key={filter} initial={{scale:0}} animate={{scale:1}} className="task-section-title pr-3 pl-3 flex align-middle items-center ">{filter}{ filterImage == null || filterImage == "" ? <p></p> : <img width={20} height={20} className="mx-2" src={"/img/"+filterImage+".png"}/>}</motion.h3>
                     </div>
-                    <FontAwesomeIcon className="cursor-pointer text-2xl" icon={faEllipsis} onClick={(e)=>{toggleMenu(); setX(e.clientX); setY(e.clientY);}}></FontAwesomeIcon>
+                    <button type="button" aria-label="Change task layout" className="hidden h-10 w-10 items-center justify-center rounded-lg hover:bg-blue-100 md:flex" onClick={(e)=>{toggleMenu(); setX(e.clientX); setY(e.clientY);}}><FontAwesomeIcon className="text-2xl" icon={faEllipsis} /></button>
                     </div>
 
                     <TaskComposer key={`${user?.id}-${groupId}`} userId={user?.id} groupId={groupId} date={fullDate} categoryId={categoryId} tagId={tagId} onChooseDate={handleOpenModal} refreshTasks={refreshTasks} />
@@ -207,7 +224,7 @@ export default function TaskDisplay({
                     </div>}
                     
 
-                 <div ref={taskListRef} inert={deletingTasks} aria-busy={deletingTasks} className={user?.display == true ? "task-cards-grid grid min-h-0 min-w-0 flex-1 grid-cols-2 content-start overflow-x-hidden overflow-y-auto" : "min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto"}>
+                 <div ref={taskListRef} inert={deletingTasks} aria-busy={deletingTasks} className={user?.display == true ? "task-cards-grid grid min-h-0 min-w-0 flex-1 grid-cols-1 md:grid-cols-2 content-start overflow-x-hidden overflow-y-auto" : "min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto"}>
                     <AnimatePresence>
                     {
                       
@@ -279,7 +296,7 @@ export default function TaskDisplay({
            <TaskEditor key={selectedTaskProp.id} editor={editor} task={tasksArray.find(task => task.id === selectedTaskProp.id) ?? selectedTaskProp} refreshTasks={refreshTasks} />
          </div> : <div className="task-editor-empty hidden md:flex md:w-2/4 items-center justify-center p-8 text-sm text-gray-400">Select a task to edit its notes.</div>}
 
-           <OptionsMenu options={options} open={open} closeMenu={()=>setOpen(!open)} x={X} y={Y} />
+           <OptionsMenu options={options} open={open} closeMenu={()=>setOpen(false)} x={X} y={Y} />
         </div>
         
     )

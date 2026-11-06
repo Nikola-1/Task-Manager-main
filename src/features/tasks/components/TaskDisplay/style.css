@@ -106,6 +106,12 @@
 .task-editor-content .tiptap pre { overflow-x: auto; border-radius: 8px; background: #f3f4f6; padding: 12px; }
 .task-editor-content .tiptap code { border-radius: 4px; background: #f3f4f6; padding: 2px 4px; }
 .task-editor-content .tiptap a { color: #2563eb; text-decoration: underline; }
+[data-theme="dark"] .task-editor-content .tiptap {
+  color: #fff;
+  caret-color: #fff;
+}
+[data-theme="dark"] .task-editor-content .tiptap :is(blockquote, a) { color: #fff; }
+[data-theme="dark"] .task-editor-content .tiptap :is(pre, code) { background: #0f172a; color: #fff; }
 .task-editor-content .tiptap hr { margin: 1rem 0; border-top: 1px solid #e5e7eb; }
 
 @media (prefers-reduced-motion: reduce) {

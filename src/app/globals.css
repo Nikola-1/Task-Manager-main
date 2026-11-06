@@ -41,6 +41,12 @@
 [data-theme="dark"] input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
 [data-theme="dark"] textarea,
 [data-theme="dark"] select { background-color: #1e293b; color: #e2e8f0; }
+[data-theme="dark"] .group-card-name { color: #bfdbfe; }
+
+[data-theme="dark"] :is(.bg-white, .bg-blue-50, .bg-blue-100, .bg-blue-200, .bg-blue-300, .bg-blue-400, .bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-blue-800, .bg-blue-900)
+  :is(h1, h2, h3, h4, h5, h6):not(.task-editor > header *, .task-group-heading *, .task-options-header *, [class*="bg-white/"] *, [style*="background"] *) {
+  color: #fff;
+}
 
 body {
   color: var(--foreground);
@@ -605,7 +611,8 @@ p{
   image-rendering: pixelated;
 }
 @media (max-width: 767px) {
-  [data-theme="mario"] .nav .mario-sidebar-mushroom { margin-top: 16px; }
+  [data-theme="mario"] .nav .mario-sidebar-mushroom { display: none; }
+  [data-theme="mario"] .nav a span { font-size: 8px; line-height: 1.6; }
 }
 [data-theme="mario"] .nav :is(a, p, .text-blue-900) { color: #fff9e6; }
 [data-theme="mario"] .nav img:not([data-sidebar-profile]) { filter: brightness(0) invert(1); }
@@ -616,9 +623,6 @@ p{
   color: #40537f;
 }
 [data-theme="mario"] button:not(:disabled):active { box-shadow: 1px 1px 0 var(--mario-outline); }
-[data-theme="mario"] .mario-theme-button,
-[data-theme="mario"] .mario-theme-button:hover { background: var(--mario-red); color: #fff; }
-[data-theme="mario"] .mario-theme-button[aria-pressed="true"] { outline: 3px solid var(--mario-green); outline-offset: 3px; }
 [data-theme="mario"] :is(button, input, select, textarea, a):focus-visible { outline: 2px solid #40537f; outline-offset: 4px; }
 
 :is(button, input, select, textarea, a):focus:not(:focus-visible) {
@@ -957,6 +961,9 @@ p{
 .task-workspace .task-card-content > div:first-child { min-width: 0; flex: 1; }
 .task-workspace .task-list [data-task-card] p { overflow-wrap: anywhere; }
 .task-workspace .task-cards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+@media (max-width: 767px) {
+  .task-workspace .task-cards-grid { grid-template-columns: minmax(0, 1fr); }
+}
 
 @media (min-width: 768px) {
   .task-workspace {
@@ -996,6 +1003,19 @@ p{
   .task-workspace { width: 100%; }
   .task-workspace .Task-menu { width: 100%; border-bottom: 1px solid #bfdbfe; }
   .task-workspace #task-menu-content { max-height: 45dvh; overflow-y: auto; overflow-x: hidden; }
+  .task-workspace .Task-menu,
+  .task-workspace .task-menu-wrapper,
+  .task-workspace #task-menu-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .task-workspace .Task-menu::-webkit-scrollbar,
+  .task-workspace .task-menu-wrapper::-webkit-scrollbar,
+  .task-workspace #task-menu-content::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
   .task-workspace .task-list { height: auto; min-height: 65dvh; }
   .task-workspace .task-description { height: 85dvh; min-height: 420px; flex: none; }
   .task-workspace .task-list > div:first-child { padding: 8px; }
