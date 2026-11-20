@@ -28,7 +28,13 @@ export async function  saveChanges(Name:string | undefined,Surname:string,Userna
   }
 
 export async function Register(Username:string | null, Name:string | null, Email:string | null, Password:string | null,Surname:string | null){
-            if(Username != null && Name != null && Surname != null && Email != null && Password != null){
+            if (!Username?.trim() || !Name?.trim() || !Surname?.trim() || !Email?.trim() || !Password?.trim()) {
+              throw new Error('Please complete all required fields.');
+            }
+            if (!/^\S{3,50}$/.test(Username) || Name.trim().length > 100 || Surname.trim().length > 100 || Email.length > 254 || !/^[^\s@]+@[^\s@]+$/.test(Email) || Password.length < 8 || Password.length > 128) {
+              throw new Error('Check your details. Use a valid email and a password with 8–128 characters.');
+            }
+            {
                 const {error} = await supabase.from("Users").insert({Name:Name,Surname:Surname,Password:Password,email:Email,Username:Username});
                 
                 if(!error){
@@ -37,7 +43,7 @@ export async function Register(Username:string | null, Name:string | null, Email
                      
                 }
                 else{
-                  console.log(error);
+                  throw new Error(error.code === '23505' ? 'An account with this username or email already exists.' : 'Could not create your account. Please try again.');
                 }
             }
     }

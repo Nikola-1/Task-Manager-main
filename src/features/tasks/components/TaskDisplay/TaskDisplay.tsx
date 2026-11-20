@@ -19,6 +19,8 @@ import  {TextStyle,FontFamily}  from '@tiptap/extension-text-style'
 import Task from "@/features/tasks/components/Task/Task";
 import TaskEditor from "@/features/tasks/components/TaskDisplay/TaskEditor";
 import TaskComposer from '@/features/tasks/components/TaskDisplay/TaskComposer';
+import TaskDateRangeFilter from '@/features/tasks/components/TaskDisplay/TaskDateRangeFilter';
+import type { TaskDateRange } from '@/features/tasks/data/task-date-range';
 
 import { sortTasks } from '@/features/tasks/data/task-sort';
 import { useTaskPriorities } from '@/features/tasks/hooks/useTaskPriority';
@@ -37,6 +39,11 @@ import { motion,AnimatePresence, useReducedMotion } from "framer-motion";
 
 
 interface TaskDisplayProps {
+    dateRange: TaskDateRange | null;
+    onApplyDateRange: (range: TaskDateRange) => void;
+    onClearDateRange: () => void;
+    loading: boolean;
+    loadError: string;
     setToggleModal: React.Dispatch<React.SetStateAction<boolean>>;
 
    ToggleModal:boolean;
@@ -59,6 +66,7 @@ interface TaskDisplayProps {
    tagsDisplayProps:object[];
   }
 export default function TaskDisplay({
+  dateRange, onApplyDateRange, onClearDateRange, loading, loadError,
   setToggleModal,
   fullDate,
   setFullDate,
@@ -210,6 +218,8 @@ export default function TaskDisplay({
                     </div>
 
                     <TaskComposer key={`${user?.id}-${groupId}`} userId={user?.id} groupId={groupId} date={fullDate} categoryId={categoryId} tagId={tagId} onChooseDate={handleOpenModal} refreshTasks={refreshTasks} />
+                    <TaskDateRangeFilter key={`${dateRange?.from ?? ''}-${dateRange?.to ?? ''}`} value={dateRange} onApply={onApplyDateRange} onClear={onClearDateRange} />
+                    {loadError && <p role="alert" className="mx-3 text-sm text-red-700">{loadError} <button type="button" onClick={() => void refreshTasks()} className="underline">Retry</button></p>}
 <div className="mx-3 mb-1 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs text-blue-800">
                       <span className="flex items-center gap-2 font-medium"><FontAwesomeIcon icon={faCalendar} className="text-blue-400" />Sort tasks</span>
                       <TaskSortDropdown value={dateSort} onChange={setDateSort} />
@@ -228,7 +238,7 @@ export default function TaskDisplay({
                     <AnimatePresence>
                     {
                       
-                        tasksArray.length != 0 ?
+                        loading ? <p key="loading" role="status" className="m-auto p-4 text-sm text-blue-900">Loading tasks...</p> : loadError ? null : tasksArray.length != 0 ?
                     sortedTasks.map((item)=>(
                       
                       <motion.div layout data-task-card key={item.id}
@@ -255,7 +265,7 @@ export default function TaskDisplay({
   filter={filter}
   editor={editor}
 /></motion.div> 
-                )): <div className="flex justify-center align-middle items-center m-auto"><p className="flex justify-center align-middle items-center font-bold text-blue-900 ">No Tasks </p></div>
+                )): <div className="flex justify-center align-middle items-center m-auto"><p role="status" className="flex justify-center align-middle items-center font-bold text-blue-900 ">{dateRange ? 'No tasks in this date range.' : 'No Tasks'}</p></div>
                 }</AnimatePresence>
                  </div>
                  <AnimatePresence>

@@ -8,7 +8,9 @@ interface ModalProps {
   DateInherited: Date | null;
   setDate: React.Dispatch<React.SetStateAction<Date | null>>;
 }
-function DateDialog({ setActive, DateInherited, setDate }: Omit<ModalProps, 'isActive'>) {
+function DateDialog({ setActive, DateInherited, setDate }: Omit<ModalProps, 'isActive'>) 
+{
+
   const [draft, setDraft] = useState(DateInherited ?? new Date());
   const dialog = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -22,7 +24,11 @@ function DateDialog({ setActive, DateInherited, setDate }: Omit<ModalProps, 'isA
       previousFocus?.focus();
     };
   }, []);
-  return createPortal(<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+
+
+
+  return createPortal(
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
     onClick={event => { if (event.target === event.currentTarget) setActive(false); }}>
     <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId}
       className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6"
@@ -52,6 +58,9 @@ function DateDialog({ setActive, DateInherited, setDate }: Omit<ModalProps, 'isA
     </div>
   </div>, document.body);
 }
+
+
+
 export default function CalendarModal({ isActive, ...props }: ModalProps) {
   return isActive ? <DateDialog {...props} /> : null;
 }

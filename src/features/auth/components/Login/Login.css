@@ -54,6 +54,39 @@
 }
 
 .auth-page button { min-height: 48px; }
+.register-password-hint { grid-column: 1 / -1; }
+.register-submit {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+.register-submit:not(:disabled):hover {
+  transform: translateY(-3px);
+  background-color: #1d4ed8;
+  box-shadow: 0 8px 18px rgb(30 58 138 / 25%);
+}
+.register-submit img { transition: transform 180ms ease; }
+.register-submit:not(:disabled):hover img { transform: translateX(3px); }
+.register-submit:not(:disabled):active { transform: scale(.95); }
+.register-submit:disabled { cursor: wait; opacity: .65; }
+.register-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgb(255 255 255 / 35%);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: register-spin 700ms linear infinite;
+}
+@keyframes register-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .register-submit, .register-submit img { transition: none; }
+  .register-submit:not(:disabled):hover,
+  .register-submit:not(:disabled):active,
+  .register-submit:not(:disabled):hover img { transform: none; }
+  .register-spinner { animation: none; }
+}
 .auth-page :is(input, button):focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 3px;

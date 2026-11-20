@@ -2,7 +2,8 @@
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { useScope } from "@/features/groups/context/ScopeContext";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getTasksInDateRange, type TaskDateRange } from '@/features/tasks/data/task-date-range';
 
 export default function useFilterTasks(
   filter: string,
@@ -11,18 +12,22 @@ export default function useFilterTasks(
   category_id: number | null,
   isTag:boolean | null,
   TagId:number | null,
+  dateRange: TaskDateRange | null = null,
   
   
 ) {
 
   const [tasks, setTasks] = useState<any[]>([]); // state koji cuva niz taskova 
   const [loading, setLoading] = useState(true); // state za loading 
+  const [loadError, setLoadError] = useState('');
   const { user } = useAuth(); // radi provere Userovih taskova
   const { groupId } = useScope(); // u slucaju ako je grupa u pitanju
   const reqRef = useRef(0); // 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
       const reqId = ++reqRef.current; //  zbog preklapanja starih rezultata sa novim 
     setLoading(true);
+    setLoadError('');
+    if (!user?.id) { setTasks([]); setLoading(false); return; }
  
     let data, error;
 
@@ -30,7 +35,9 @@ export default function useFilterTasks(
      
 
 
-      if (isCategory === true && category_id !== null && category_id > 0) { // ako je kategorija u pitanju
+      if (dateRange) {
+        ({ data, error } = await getTasksInDateRange(dateRange, user.id, groupId));
+      } else if (isCategory === true && category_id !== null && category_id > 0) { // ako je kategorija u pitanju
         let q = supabase  // pronadji sve taskove sa datom kategorijom a da nisu deleteovani
           .from("Users_Tasks")
           .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
@@ -112,7 +119,7 @@ export default function useFilterTasks(
         }
       }
 
-      if(isTag === true && TagId !== null){
+      if(!dateRange && isTag === true && TagId !== null){
          let q =  supabase
           .from("tags_tasks")
           .select("tasks(*,tags_tasks(*,Tags(*)),category:Categories!tasks_category_id_fkey(name,Stickers!Categories_sticker_id_fkey(sticker_path)))")
@@ -130,7 +137,9 @@ export default function useFilterTasks(
       
 //Today false 0 0 null null
 //Parameters: Today false null null false null
+      if (reqId !== reqRef.current) return;
       if (error) {
+        setLoadError('Could not load tasks. Please try again.');
         console.error("Supabase error:", error.message);
         setTasks([]);
       } else {
@@ -151,13 +160,15 @@ export default function useFilterTasks(
           setLoading(false);
       }
     } catch (err) {
+      if (reqId !== reqRef.current) return;
+      setLoadError('Could not load tasks. Please try again.');
       console.error("Unexpected error:", err);
       setTasks([]);
     }
     
   
     setLoading(false);
-  };
+  }, [filter, isCategory, category_id, isTag, TagId, groupId, dateRange, user?.id]);
 
   
   useEffect(() => {
@@ -168,6 +179,7 @@ export default function useFilterTasks(
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "tasks" },
         (payload) => {
+          if (dateRange) { void fetchData(); return; }
           setTasks((prev) => //koristi prethodno stanje taskova 
             prev.map((t) =>
              t.id === payload.new.id ? { ...t, ...payload.new } : t //kada pronadje task zamenjuje ga sa novim stanjem 
@@ -182,14 +194,18 @@ export default function useFilterTasks(
       .subscribe();
 
     return () => {
+      // This ref is a request counter, not a DOM node; invalidate pending requests.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      reqRef.current++;
       supabase.removeChannel(subscription);
     };
     
-  }, [filter, isCategory, category_id,TagId,isTag,groupId]);
+  }, [fetchData, dateRange, user?.id]);
 
   return {
     tasks,
     loading,
+    loadError,
     refresh: fetchData,
   };
 }

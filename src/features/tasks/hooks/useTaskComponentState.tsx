@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useFilterTasks from "@/features/tasks/hooks/useFilterTasks";
 import { useScope } from "@/features/groups/context/ScopeContext";
+import type { TaskDateRange } from '@/features/tasks/data/task-date-range';
 
 export function useTaskComponentState() {
   const [refreshFlag, setRefreshFlag] = useState(false);
@@ -16,12 +17,14 @@ export function useTaskComponentState() {
   const [selectedTag, setSelectedTag] = useState<object | null>(null);
 
   const [filter, setFilter] = useState("Today");
+  const [dateRange, setDateRange] = useState<TaskDateRange | null>(null);
   const [filterImage, setFilterImage] = useState("");
 
   const [editListItem, setEditListItem] = useState<object | null>(null);
 
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [tagId, setTagId] = useState(null);
+  const activeDateRange = filter === 'Date range' && categoryId === null && tagId === null ? dateRange : null;
 
   const [sideMenuVisible, setSideMenuVisible] = useState(false);
 
@@ -34,12 +37,13 @@ export function useTaskComponentState() {
   const isCategory = categoryId !== null;
   const isTag = tagId !== null;
 
-  const { tasks, refresh } = useFilterTasks(
+  const { tasks, refresh, loading, loadError } = useFilterTasks(
     filter,
     isCategory,
     categoryId,
     isTag,
-    tagId
+    tagId,
+    activeDateRange
   );
 
   const triggerRender = () => {
@@ -53,7 +57,7 @@ export function useTaskComponentState() {
   
   useEffect(() => {
     setSelectedTask(null);
-  }, [filter, categoryId, tagId, groupId]);
+  }, [filter, categoryId, tagId, groupId, activeDateRange]);
  useEffect(() => {
     console.log(toggleModalGroups);
   }, [toggleModalGroups]);
@@ -84,6 +88,18 @@ export function useTaskComponentState() {
   };
 
   const taskDisplayProps = {
+    dateRange: activeDateRange,
+    onApplyDateRange: (range: TaskDateRange) => {
+      setDateRange(range);
+      setCategoryId(null);
+      setTagId(null);
+      setFilterImage('');
+      setFilter('Date range');
+      setSelectedTask(null);
+    },
+    onClearDateRange: () => { setDateRange(null); setFilter('Today'); },
+    loading,
+    loadError,
     tagId,
     refreshFlag,
     SideMenuVisible: sideMenuVisible,
